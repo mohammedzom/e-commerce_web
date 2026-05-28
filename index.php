@@ -4,7 +4,12 @@
 <?php
 $page_title = 'الصفحة الرئيسية';
 $page_description = 'متجرنا — تسوّق أفضل المنتجات بجودة عالية وأسعار مناسبة. شحن سريع وخدمة عملاء متميزة.';
+require 'config/config.php';
 include 'includes/header.php'; ?>
+<?php
+$products = $conn->query("SELECT * FROM products WHERE stock_quantity > 0 LIMIT 4");
+$products = $products->fetchAll(PDO::FETCH_OBJ);
+?>
 
 <body>
 
@@ -114,181 +119,40 @@ include 'includes/header.php'; ?>
       </div>
 
       <div class="row g-4">
-        <!-- Product 1 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <span class="product-badge badge-new">جديد</span>
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
-              </div>
-              <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop" alt="ساعة يد أنيقة">
-            </div>
-            <div class="card-body">
-              <div class="product-category">إكسسوارات</div>
-              <h6 class="product-title"><a href="product-detail.php">ساعة يد أنيقة بتصميم كلاسيكي</a></h6>
-              <div class="product-price">
-                299 ش
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Product 2 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <span class="product-badge badge-sale">خصم</span>
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
+        <?php
+        foreach ($products as $product) {
+        ?>
+          <div class="col-6 col-md-4 col-lg-3 reveal">
+            <div class="card-custom product-card">
+              <div class="product-img-wrapper">
+                <span class="product-badge badge-new">جديد</span>
+                <div class="product-actions">
+                  <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
+                  <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
+                </div>
+                <img src="<?php echo $product->image_url ?>" alt="<?php echo $product->name ?>">
               </div>
-              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop" alt="سماعات لاسلكية">
-            </div>
-            <div class="card-body">
-              <div class="product-category">إلكترونيات</div>
-              <h6 class="product-title"><a href="product-detail.php">سماعات لاسلكية عالية الجودة</a></h6>
-              <div class="product-price">
-                <span class="old-price">450 ش</span>
-                349 ش
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product 3 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
-              </div>
-              <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&h=400&fit=crop" alt="حذاء رياضي">
-            </div>
-            <div class="card-body">
-              <div class="product-category">أحذية</div>
-              <h6 class="product-title"><a href="product-detail.php">حذاء رياضي مريح وعصري</a></h6>
-              <div class="product-price">
-                199 ش
+              <div class="card-body">
+                <div class="product-category"><?php echo $product->category ?></div>
+                <h6 class="product-title"><a href="product.php?id=<?php echo $product->id ?>"><?php echo $product->name ?></a></h6>
+                <div class="product-price">
+                  <?php echo $product->price ?> ش
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Product 4 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <span class="product-badge badge-new">جديد</span>
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
-              </div>
-              <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&h=400&fit=crop" alt="كاميرا احترافية">
-            </div>
-            <div class="card-body">
-              <div class="product-category">إلكترونيات</div>
-              <h6 class="product-title"><a href="product-detail.php">كاميرا بولارويد بتصميم ريترو</a></h6>
-              <div class="product-price">
-                549 ش
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product 5 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
-              </div>
-              <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop" alt="نظارة شمسية">
-            </div>
-            <div class="card-body">
-              <div class="product-category">إكسسوارات</div>
-              <h6 class="product-title"><a href="product-detail.php">نظارة شمسية بإطار أنيق</a></h6>
-              <div class="product-price">
-                129 ش
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product 6 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <span class="product-badge badge-sale">خصم</span>
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
-              </div>
-              <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop" alt="عطر فاخر">
-            </div>
-            <div class="card-body">
-              <div class="product-category">عطور</div>
-              <h6 class="product-title"><a href="product-detail.php">عطر فاخر بتركيبة فرنسية</a></h6>
-              <div class="product-price">
-                <span class="old-price">380 ش</span>
-                280 ش
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product 7 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
-              </div>
-              <img src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400&h=400&fit=crop" alt="حقيبة جلدية">
-            </div>
-            <div class="card-body">
-              <div class="product-category">حقائب</div>
-              <h6 class="product-title"><a href="product-detail.php">حقيبة جلدية فاخرة</a></h6>
-              <div class="product-price">
-                420 ش
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product 8 -->
-        <div class="col-6 col-md-4 col-lg-3 reveal">
-          <div class="card-custom product-card">
-            <div class="product-img-wrapper">
-              <div class="product-actions">
-                <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
-              </div>
-              <img src="https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=400&fit=crop" alt="ساعة ذكية">
-            </div>
-            <div class="card-body">
-              <div class="product-category">إلكترونيات</div>
-              <h6 class="product-title"><a href="product-detail.php">ساعة ذكية متعددة الاستخدامات</a></h6>
-              <div class="product-price">
-                699 ش
-              </div>
-            </div>
-          </div>
+        <?php
+        }
+        ?>
+        <!-- View All -->
+        <div class="text-center mt-5 reveal">
+          <a href="products.php" class="btn btn-outline-custom px-4">
+            عرض جميع المنتجات
+            <i class="bi bi-arrow-left me-1"></i>
+          </a>
         </div>
       </div>
-
-      <!-- View All -->
-      <div class="text-center mt-5 reveal">
-        <a href="products.php" class="btn btn-outline-custom px-4">
-          عرض جميع المنتجات
-          <i class="bi bi-arrow-left me-1"></i>
-        </a>
-      </div>
-    </div>
   </section>
 
 

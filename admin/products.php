@@ -1,39 +1,30 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="إدارة المنتجات — إضافة وتعديل وحذف المنتجات في المتجر.">
-  <title>متجرنا — إدارة المنتجات</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+<?php
+$page_description = 'إدارة المنتجات — إضافة وتعديل وحذف المنتجات في المتجر.';
+$page_title = 'إدارة المنتجات';
+include '../includes/header.php';
+require '../config/config.php';
 
+if (!isset($_SESSION['user_id'])) {
+  header("Location:../" . APPURL . "/admin/login.php");
+} else {
+  $session_id = filter_var($_SESSION['user_id'], FILTER_SANITIZE_NUMBER_INT);
+  $user = $conn->prepare("SELECT * FROM admins WHERE id=:session_id");
+  $user->execute(['session_id' => $session_id]);
+  $user = $user->fetch(PDO::FETCH_OBJ);
+
+  if ($user->role != 'admin') {
+    header("Location:../" . APPURL . "/");
+  }
+}
+
+?>
+
+<body>
   <div class="admin-wrapper">
     <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;"></div>
 
     <!-- SIDEBAR -->
-    <aside class="admin-sidebar" id="adminSidebar">
-      <div class="sidebar-brand">
-        <a href="index.php" style="color:inherit;text-decoration:none;">
-          <i class="bi bi-bag-heart"></i> متجر<span>نا</span>
-        </a>
-      </div>
-      <ul class="sidebar-nav">
-        <li class="nav-label">القائمة الرئيسية</li>
-        <li class="nav-item"><a href="admin_dashboard.php" class="nav-link"><i class="bi bi-grid-1x2"></i> لوحة التحكم</a></li>
-        <li class="nav-item"><a href="admin_products.php" class="nav-link active"><i class="bi bi-box-seam"></i> المنتجات</a></li>
-        <li class="nav-item"><a href="admin_orders.php" class="nav-link"><i class="bi bi-receipt"></i> الطلبات</a></li>
-        <li class="nav-item"><a href="admin_users.php" class="nav-link"><i class="bi bi-people"></i> المستخدمين</a></li>
-        <li class="nav-item"><a href="admin_messages.php" class="nav-link"><i class="bi bi-chat-dots"></i> الرسائل</a></li>
-        <li class="nav-label" style="margin-top:var(--space-lg);">إعدادات</li>
-        <li class="nav-item"><a href="admin_settings.php" class="nav-link"><i class="bi bi-gear"></i> إعدادات الموقع</a></li>
-        <li class="nav-item"><a href="index.php" class="nav-link"><i class="bi bi-house"></i> عرض الموقع</a></li>
-        <li class="nav-item"><a href="login.php" class="nav-link" style="color:var(--color-danger);"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
-      </ul>
-    </aside>
+    <?php include '../includes/admin-sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
     <main class="admin-content">
@@ -294,4 +285,5 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
 </body>
+
 </html>
