@@ -58,7 +58,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="<?php echo APPURL; ?>auth/login.php">
+                            <a class="nav-link active" href="<?php echo APPURL; ?>auth/logout.php">
                                 <i class="bi bi-box-arrow-in-right"></i>
                                 تسجيل الخروج
                             </a>

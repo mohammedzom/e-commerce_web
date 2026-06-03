@@ -4,17 +4,48 @@ $page_title = 'إدارة المنتجات';
 include '../includes/header.php';
 require '../config/config.php';
 
-if (!isset($_SESSION['user_id'])) {
-  header("Location:../" . APPURL . "/admin/login.php");
-} else {
-  $session_id = filter_var($_SESSION['user_id'], FILTER_SANITIZE_NUMBER_INT);
-  $user = $conn->prepare("SELECT * FROM admins WHERE id=:session_id");
-  $user->execute(['session_id' => $session_id]);
-  $user = $user->fetch(PDO::FETCH_OBJ);
+require_once '../includes/middleware/check-admin.php';
 
-  if ($user->role != 'admin') {
-    header("Location:../" . APPURL . "/");
+if (isset($_POST['saveProductBtn'])) {
+  try {
+
+    $product = [
+      'name' => $_POST['name'],
+      'description' => $_POST['description'],
+      'price' => $_POST['price'],
+      'stock_quantity' => $_POST['stock'],
+      'category_id' => $_POST['category_id'],
+    ];
+
+    // --- Image Upload ---
+    if (empty($_FILES['image_file']['name']) || $_FILES['image_file']['error'] !== UPLOAD_ERR_OK) {
+      throw new Exception("يرجى اختيار صورة للمنتج");
+    }
+
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    $mime = mime_content_type($_FILES['image_file']['tmp_name']);
+    if (!in_array($mime, $allowed_types)) {
+      throw new Exception("نوع الملف غير مدعوم. يُسمح فقط بـ JPG, PNG, GIF, WEBP");
+    }
+
+    $ext        = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
+    $unique_name = uniqid('product_', true) . '.' . $ext;
+    $upload_dir  = __DIR__ . '/../assets/uploads/images/';
+    $image_path  = $upload_dir . $unique_name;
+
+    if (!move_uploaded_file($_FILES['image_file']['tmp_name'], $image_path)) {
+      throw new Exception("فشل رفع الصورة، تأكد من صلاحيات المجلد");
+    }
+
+    $product['image_url'] = APPURL . "assets/uploads/images/" . $unique_name;
+
+    $result = $conn->prepare("INSERT INTO products (name, description, price, stock_quantity, category_id, image_url) VALUES (:name, :description, :price, :stock_quantity, :category_id, :image_url)")
+      ->execute($product);
+    $statuts = $result ? "تم إضافة المنتج بنجاح" : "فشل إضافة المنتج ";
+  } catch (Exception $e) {
+    $statuts = "حدث خطأ " . $e->getMessage();
   }
+  echo "<script>alert('$statuts')</script>";
 }
 
 ?>
@@ -23,7 +54,6 @@ if (!isset($_SESSION['user_id'])) {
   <div class="admin-wrapper">
     <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;"></div>
 
-    <!-- SIDEBAR -->
     <?php include '../includes/admin-sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
@@ -40,7 +70,6 @@ if (!isset($_SESSION['user_id'])) {
         </button>
       </div>
 
-      <!-- Search & Filter -->
       <div class="card-custom" style="padding:var(--space-lg);border-radius:var(--radius-lg);margin-bottom:var(--space-xl);">
         <div class="row g-3 align-items-end">
           <div class="col-md-5">
@@ -91,120 +120,29 @@ if (!isset($_SESSION['user_id'])) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>
-                  <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=60&h=60&fit=crop" alt="ساعة" style="width:100%;height:100%;object-fit:cover;">
-                  </div>
-                </td>
-                <td><strong>ساعة يد أنيقة بتصميم كلاسيكي</strong></td>
-                <td>إكسسوارات</td>
-                <td>299 ر.س</td>
-                <td>45</td>
-                <td><span class="status-badge status-completed">متوفر</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>
-                  <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=60&h=60&fit=crop" alt="سماعات" style="width:100%;height:100%;object-fit:cover;">
-                  </div>
-                </td>
-                <td><strong>سماعات لاسلكية عالية الجودة</strong></td>
-                <td>إلكترونيات</td>
-                <td>349 ر.س</td>
-                <td>120</td>
-                <td><span class="status-badge status-completed">متوفر</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>
-                  <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=60&h=60&fit=crop" alt="حذاء" style="width:100%;height:100%;object-fit:cover;">
-                  </div>
-                </td>
-                <td><strong>حذاء رياضي مريح وعصري</strong></td>
-                <td>أحذية</td>
-                <td>199 ر.س</td>
-                <td>0</td>
-                <td><span class="status-badge status-cancelled">نفذ</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td>
-                  <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=60&h=60&fit=crop" alt="كاميرا" style="width:100%;height:100%;object-fit:cover;">
-                  </div>
-                </td>
-                <td><strong>كاميرا بولارويد بتصميم ريترو</strong></td>
-                <td>إلكترونيات</td>
-                <td>549 ر.س</td>
-                <td>28</td>
-                <td><span class="status-badge status-completed">متوفر</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>
-                  <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=60&h=60&fit=crop" alt="عطر" style="width:100%;height:100%;object-fit:cover;">
-                  </div>
-                </td>
-                <td><strong>عطر فاخر بتركيبة فرنسية</strong></td>
-                <td>عطور</td>
-                <td>280 ر.س</td>
-                <td>65</td>
-                <td><span class="status-badge status-completed">متوفر</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>6</td>
-                <td>
-                  <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=60&h=60&fit=crop" alt="حقيبة" style="width:100%;height:100%;object-fit:cover;">
-                  </div>
-                </td>
-                <td><strong>حقيبة جلدية فاخرة</strong></td>
-                <td>حقائب</td>
-                <td>420 ر.س</td>
-                <td>15</td>
-                <td><span class="status-badge status-completed">متوفر</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
+              <?php
+              $products = $conn->query("SELECT * FROM products")->fetchAll(PDO::FETCH_OBJ);
+              foreach ($products as $product) : ?>
+                <tr>
+                  <td><?= $product->product_id ?></td>
+                  <td>
+                    <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
+                      <img src="<?= $product->image_url ?>" alt="<?= $product->name ?>" style="width:100%;height:100%;object-fit:cover;">
+                    </div>
+                  </td>
+                  <td><strong><?= $product->name ?></strong></td>
+                  <td><?= $product->category ?></td>
+                  <td><?= $product->price ?> ش</td>
+                  <td><?= $product->stock ?></td>
+                  <td><span class="status-badge status-completed"><?= $product->status ?></span></td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
+                      <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
             </tbody>
           </table>
         </div>
@@ -237,46 +175,48 @@ if (!isset($_SESSION['user_id'])) {
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body" style="padding:var(--space-xl);">
-          <form id="addProductForm">
+          <form id="addProductForm" method="post" enctype="multipart/form-data">
             <div class="row g-3">
               <div class="col-md-8">
                 <label class="form-label-custom" for="newProductName">اسم المنتج</label>
-                <input type="text" class="form-control form-control-custom" id="newProductName" placeholder="أدخل اسم المنتج">
+                <input type="text" class="form-control form-control-custom" id="newProductName" placeholder="أدخل اسم المنتج" name="name">
               </div>
               <div class="col-md-4">
                 <label class="form-label-custom" for="newProductCategory">التصنيف</label>
-                <select class="form-select form-select-custom" id="newProductCategory">
-                  <option>إلكترونيات</option>
-                  <option>إكسسوارات</option>
-                  <option>أحذية</option>
-                  <option>حقائب</option>
-                  <option>عطور</option>
+                <select class="form-select form-select-custom" id="newProductCategory" name="category_id">
+                  <?php
+                  $categories = $conn->prepare("SELECT * FROM categories");
+                  $categories->execute();
+                  $categories = $categories->fetchAll(PDO::FETCH_OBJ);
+                  foreach ($categories as $category) : ?>
+                    <option value="<?= $category->category_id ?>"><?= $category->name ?></option>
+                  <?php endforeach; ?>
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label-custom" for="newProductPrice">السعر (ر.س)</label>
-                <input type="number" class="form-control form-control-custom" id="newProductPrice" placeholder="0.00">
+                <label class="form-label-custom" for="newProductPrice">السعر (ش)</label>
+                <input type="number" class="form-control form-control-custom" id="newProductPrice" placeholder="0.00" name="price">
               </div>
               <div class="col-md-4">
                 <label class="form-label-custom" for="newProductStock">المخزون</label>
-                <input type="number" class="form-control form-control-custom" id="newProductStock" placeholder="0">
+                <input type="number" class="form-control form-control-custom" id="newProductStock" placeholder="0" name="stock">
               </div>
               <div class="col-md-4">
                 <label class="form-label-custom" for="newProductImage">صورة المنتج</label>
-                <input type="file" class="form-control form-control-custom" id="newProductImage" accept="image/*">
+                <input type="file" class="form-control form-control-custom" id="newProductImage" accept="image/*" name="image_file">
               </div>
               <div class="col-12">
                 <label class="form-label-custom" for="newProductDescription">وصف المنتج</label>
-                <textarea class="form-control form-control-custom" id="newProductDescription" rows="4" placeholder="أدخل وصف المنتج ..."></textarea>
+                <textarea class="form-control form-control-custom" id="newProductDescription" rows="4" placeholder="أدخل وصف المنتج ..." name="description"></textarea>
               </div>
             </div>
+            <div class="modal-footer" style="border-top:1px solid var(--color-border-light);padding:var(--space-lg) var(--space-xl);margin-top:var(--space-lg);">
+              <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">إلغاء</button>
+              <button type="submit" class="btn btn-primary-custom" id="saveProductBtn" name="saveProductBtn">
+                <i class="bi bi-check-lg me-2"></i>حفظ المنتج
+              </button>
+            </div>
           </form>
-        </div>
-        <div class="modal-footer" style="border-top:1px solid var(--color-border-light);padding:var(--space-lg) var(--space-xl);">
-          <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">إلغاء</button>
-          <button type="button" class="btn btn-primary-custom" id="saveProductBtn">
-            <i class="bi bi-check-lg me-2"></i>حفظ المنتج
-          </button>
         </div>
       </div>
     </div>

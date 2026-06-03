@@ -1,8 +1,8 @@
 <?php
 
-// session_start();
+session_start();
 
-// session_destroy();
+session_destroy();
 
 echo "<pre>";
 print_r($_SESSION);

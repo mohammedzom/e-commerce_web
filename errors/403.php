@@ -1,6 +1,8 @@
 <?php
 http_response_code(403);
 define("APPURL", "http://localhost/E-Commerce/");
+require_once '../includes/handlers/auth-handler.php';
+
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -48,17 +50,25 @@ define("APPURL", "http://localhost/E-Commerce/");
       <!-- Info box -->
       <div class="error-info-box">
         <i class="bi bi-info-circle"></i>
-        <p>
-          قد تكون هذه الصفحة مخصصة للمشرفين فقط، أو تحتاج إلى تسجيل الدخول أولاً للمتابعة.
-        </p>
+        <?php if (!checkLogin()) : ?>
+          <p>
+            قد تكون هذه الصفحة مخصصة للمشرفين فقط، أو تحتاج إلى تسجيل الدخول أولاً للمتابعة.
+          </p>
+        <?php else : ?>
+          <p>
+            ليس لديك صلاحية الوصول إلى هذه الصفحة.
+          </p>
+        <?php endif; ?>
       </div>
 
       <!-- Action Buttons -->
       <div class="error-actions">
-        <a href="<?php echo APPURL; ?>auth/login.php" class="btn btn-warning-custom px-4">
-          <i class="bi bi-box-arrow-in-right me-2"></i>
-          تسجيل الدخول
-        </a>
+        <?php if (!checkLogin()) : ?>
+          <a href="<?php echo APPURL; ?>auth/login.php" class="btn btn-warning-custom px-4">
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            تسجيل الدخول
+          </a>
+        <?php endif; ?>
         <a href="<?php echo APPURL; ?>index.php" class="btn btn-outline-custom px-4">
           <i class="bi bi-house-door me-2"></i>
           الرئيسية
