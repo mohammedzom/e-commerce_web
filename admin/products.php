@@ -3,51 +3,75 @@ $page_description = 'إدارة المنتجات — إضافة وتعديل و�
 $page_title = 'إدارة المنتجات';
 include '../includes/header.php';
 require '../config/config.php';
-
 require_once '../includes/middleware/check-admin.php';
+
+
 
 if (isset($_POST['saveProductBtn'])) {
   try {
+    $target_dir = __DIR__ . "/../assets/uploads/images/";
 
-    $product = [
-      'name' => $_POST['name'],
-      'description' => $_POST['description'],
-      'price' => $_POST['price'],
-      'stock_quantity' => $_POST['stock'],
-      'category_id' => $_POST['category_id'],
-    ];
-
-    // --- Image Upload ---
-    if (empty($_FILES['image_file']['name']) || $_FILES['image_file']['error'] !== UPLOAD_ERR_OK) {
-      throw new Exception("يرجى اختيار صورة للمنتج");
+    if (!is_dir($target_dir)) {
+      mkdir($target_dir, 0755, true);
     }
 
-    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    $mime = mime_content_type($_FILES['image_file']['tmp_name']);
-    if (!in_array($mime, $allowed_types)) {
-      throw new Exception("نوع الملف غير مدعوم. يُسمح فقط بـ JPG, PNG, GIF, WEBP");
+    $imageFileType = strtolower(pathinfo($_FILES["prodect_image"]["name"], PATHINFO_EXTENSION));
+
+    $unique_name = uniqid('product_', true) . '.' . $imageFileType;
+    $target_file = $target_dir . $unique_name;
+
+    $uploadOk = 1;
+
+    $check = getimagesize($_FILES["prodect_image"]["tmp_name"]);
+    if ($check === false) {
+      $uploadOk = 0;
     }
 
-    $ext        = pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION);
-    $unique_name = uniqid('product_', true) . '.' . $ext;
-    $upload_dir  = __DIR__ . '/../assets/uploads/images/';
-    $image_path  = $upload_dir . $unique_name;
-
-    if (!move_uploaded_file($_FILES['image_file']['tmp_name'], $image_path)) {
-      throw new Exception("فشل رفع الصورة، تأكد من صلاحيات المجلد");
+    // 1mb max
+    if ($_FILES["prodect_image"]["size"] > 1000000) {
+      $uploadOk = 0;
     }
 
-    $product['image_url'] = APPURL . "assets/uploads/images/" . $unique_name;
+    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+      && $imageFileType != "gif") {
+      $uploadOk = 0;
+    }
 
-    $result = $conn->prepare("INSERT INTO products (name, description, price, stock_quantity, category_id, image_url) VALUES (:name, :description, :price, :stock_quantity, :category_id, :image_url)")
-      ->execute($product);
-    $statuts = $result ? "تم إضافة المنتج بنجاح" : "فشل إضافة المنتج ";
+    if ($uploadOk == 0) {
+      $statuts = "فشل رفع الصورة — تأكد من نوع الملف وحجمه";
+    } else {
+      if (move_uploaded_file($_FILES["prodect_image"]["tmp_name"], $target_file)) {
+        $image_url = APPURL . "assets/uploads/images/" . $unique_name;
+
+        $product = [
+          'name' => $_POST['name'],
+          'description' => $_POST['description'],
+          'price' => $_POST['price'],
+          'stock_quantity' => $_POST['stock'],
+          'category_id' => $_POST['category_id'],
+          'image_url' => $image_url,
+        ];
+
+        $result = $conn->prepare("INSERT INTO products (name, description, price, stock_quantity, category_id, image_url) VALUES (:name, :description, :price, :stock_quantity, :category_id, :image_url)")
+          ->execute($product);
+        $statuts = $result ? "تم إضافة المنتج بنجاح" : "فشل إضافة المنتج";
+      } else {
+        $statuts = "حدث خطأ أثناء رفع الملف";
+      }
+    }
   } catch (Exception $e) {
-    $statuts = "حدث خطأ " . $e->getMessage();
+    $statuts = "حدث خطأ: " . $e->getMessage();
   }
   echo "<script>alert('$statuts')</script>";
 }
-
+if (isset($_POST['delete-product'])) {
+  $product_id = $_POST['prod_id'];
+  $statuts = $conn->prepare("DELETE FROM products WHERE product_id = :product_id")
+    ->execute([':product_id' => $product_id]);
+  $statuts = $statuts ? "تم حذف المنتج بنجاح" : "فشل حذف المنتج";
+  echo "<script>alert('$statuts')</script>";
+}
+$products = $conn->query("SELECT * FROM products")->fetchAll(PDO::FETCH_OBJ);
 ?>
 
 <body>
@@ -115,13 +139,11 @@ if (isset($_POST['saveProductBtn'])) {
                 <th>التصنيف</th>
                 <th>السعر</th>
                 <th>المخزون</th>
-                <th>الحالة</th>
                 <th style="width:15%;">الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               <?php
-              $products = $conn->query("SELECT * FROM products")->fetchAll(PDO::FETCH_OBJ);
               foreach ($products as $product) : ?>
                 <tr>
                   <td><?= $product->product_id ?></td>
@@ -133,12 +155,16 @@ if (isset($_POST['saveProductBtn'])) {
                   <td><strong><?= $product->name ?></strong></td>
                   <td><?= $product->category ?></td>
                   <td><?= $product->price ?> ش</td>
-                  <td><?= $product->stock ?></td>
-                  <td><span class="status-badge status-completed"><?= $product->status ?></span></td>
+                  <td><?= $product->stock_quantity ?></td>
                   <td>
                     <div class="d-flex gap-1">
                       <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                      <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
+                      <form action="products.php" method="POST">
+                        <input type="hidden" name="prod_id" value="<?php echo $product->product_id ?>">
+                        <button type="submit" name="delete-product" class="btn btn-danger-soft btn-remove-item" title="حذف">
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </form>
                     </div>
                   </td>
                 </tr>
@@ -148,7 +174,6 @@ if (isset($_POST['saveProductBtn'])) {
         </div>
       </div>
 
-      <!-- Pagination -->
       <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
         <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عرض 1 إلى 6 من 524 منتج</p>
         <nav>
@@ -164,7 +189,6 @@ if (isset($_POST['saveProductBtn'])) {
     </main>
   </div>
 
-  <!-- ADD PRODUCT MODAL -->
   <div class="modal fade" id="addProductModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content" style="border:none;border-radius:var(--radius-xl);">
@@ -203,7 +227,8 @@ if (isset($_POST['saveProductBtn'])) {
               </div>
               <div class="col-md-4">
                 <label class="form-label-custom" for="newProductImage">صورة المنتج</label>
-                <input type="file" class="form-control form-control-custom" id="newProductImage" accept="image/*" name="image_file">
+                <input type="file" class="form-control form-control-custom" id="newProductImage" accept="image/*" name="prodect_image">
+                
               </div>
               <div class="col-12">
                 <label class="form-label-custom" for="newProductDescription">وصف المنتج</label>
@@ -223,7 +248,7 @@ if (isset($_POST['saveProductBtn'])) {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="<?php echo APPURL . "js/main.js" ?>"></script>
 </body>
 
 </html>

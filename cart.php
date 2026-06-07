@@ -1,35 +1,57 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="سلة المشتريات — راجع منتجاتك وأكمل عملية الشراء بسهولة.">
-  <title>متجرنا — سلة المشتريات</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="css/style.css">
-</head>
+<?php
+$page_title = 'متجرنا — سلة المشتريات';
+$page_description = 'سلة المشتريات — راجع منتجاتك وأكمل عملية الشراء بسهولة.';
+include 'includes/header.php';
+require 'config/config.php';
+require 'includes/middleware/check-login.php';
+
+$user_id = $_SESSION['user_id'];
+$cart_items = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id");
+$cart_items->execute(['user_id' => $user_id]);
+$cart_items = $cart_items->fetchAll(PDO::FETCH_OBJ);
+if (isset($_POST['remove-from-cart'])) {
+  $cart_item_id = $_POST['cart_item_id'];
+  $cart_item = $conn->prepare("DELETE FROM cart_items WHERE cart_id = :cart_item_id AND user_id = :user_id");
+  $cart_item->execute(['cart_item_id' => $cart_item_id, 'user_id' => $user_id]);
+  header('Location: cart.php');
+  exit;
+}
+if (isset($_POST['apply-from-cart'])) {
+  $cart_id = $_POST['cart_id'];
+  $new_quantity = $_POST['new_quantity'];
+  $sql = "UPDATE cart_items SET quantity = :new_quantity WHERE cart_id = :cart_id AND user_id = :user_id";
+  $stmt = $conn->prepare($sql);
+  $stmt->execute([
+    'new_quantity' => $new_quantity,
+    'cart_id' => $cart_id,
+    'user_id' => $user_id
+  ]);
+  echo "<script>alert('تم تحديث الكمية'); window.location.href = 'cart.php';</script>";
+  exit;
+}
+$count_cart_items = count($cart_items);
+
+$total = 0;
+foreach ($cart_items as $cart_item) {
+  $product = $conn->prepare("SELECT price FROM products WHERE product_id = :product_id");
+  $product->execute(['product_id' => $cart_item->product_id]);
+  $product = $product->fetch(PDO::FETCH_OBJ);
+  // $sql = "UPDATE cart_items SET unit_price = :unit_price WHERE cart_item_id = :cart_item_id AND user_id = :user_id";
+  // $stmt = $conn->prepare($sql);
+  // $stmt->execute([
+  //   'unit_price' => $product->price,
+  //   'cart_item_id' => $cart_item->cart_item_id,
+  //   'user_id' => $user_id
+  // ]);
+  $total += $product->price * $cart_item->quantity;
+}
+
+?>
+
 <body>
 
   <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-custom sticky-top" id="mainNavbar">
-    <div class="container">
-      <a class="navbar-brand" href="index.php"><i class="bi bi-bag-heart"></i> متجر<span>نا</span></a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mx-auto gap-1">
-          <li class="nav-item"><a class="nav-link" href="index.php">الرئيسية</a></li>
-          <li class="nav-item"><a class="nav-link" href="products.php">المنتجات</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.php">تواصل معنا</a></li>
-        </ul>
-        <div class="nav-actions">
-          <a href="cart.php" class="nav-icon-btn" title="سلة المشتريات"><i class="bi bi-bag"></i><span class="badge-dot"></span></a>
-          <a href="profile.php" class="nav-icon-btn" title="حسابي"><i class="bi bi-person"></i></a>
-          <a href="login.php" class="btn btn-primary-custom btn-sm-custom">تسجيل الدخول</a>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <?php include 'includes/navbar.php' ?>
 
   <!-- PAGE HEADER -->
   <div class="page-header">
@@ -61,95 +83,60 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- Item 1 -->
+                <?php if(count($cart_items) == 0) { ?>
+                  <tr>
+                    <td colspan="5" class="text-center">لا توجد منتجات في السلة</td>
+                  </tr>
+                <?php } ?>
+                <?php foreach($cart_items as $cart_item): 
+                  $product = $conn->prepare("SELECT * FROM products WHERE product_id = :product_id");
+                  $product->execute(['product_id' => $cart_item->product_id]);
+                  $product = $product->fetch(PDO::FETCH_OBJ);
+                  ?>
+                  
                 <tr>
                   <td>
                     <div class="d-flex align-items-center gap-3">
                       <div style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg-alt);flex-shrink:0;">
-                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop" alt="ساعة يد" style="width:100%;height:100%;object-fit:cover;">
+                        <img src="<?php echo $product->image_url ?>" alt="<?php echo $product->name ?>" style="width:100%;height:100%;object-fit:cover;">
                       </div>
                       <div>
-                        <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;">ساعة يد أنيقة بتصميم كلاسيكي</h6>
-                        <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">إكسسوارات</span>
+                        <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;"><?php echo $product->name ?></h6>
+                        <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);"><?php echo $cart_item->category_id ?></span>
                       </div>
                     </div>
                   </td>
-                  <td style="white-space:nowrap;">299 ر.س</td>
+                  <td style="white-space:nowrap;"><?php echo $product->price ?> ش</td>
+                  <form action="cart.php" method="POST">
                   <td>
                     <div class="quantity-control">
                       <button class="qty-minus" type="button">−</button>
-                      <input type="number" value="1" min="1">
+                      <input type="number" value="<?php echo $cart_item->quantity ?>" min="1" max="<?php echo $product->stock_quantity ?>" name="new_quantity">
                       <button class="qty-plus" type="button">+</button>
                     </div>
                   </td>
-                  <td style="white-space:nowrap;font-weight:600;">299 ر.س</td>
-                  <td>
-                    <button class="btn btn-danger-soft btn-remove-item" title="حذف">
-                      <i class="bi bi-trash3"></i>
-                    </button>
+                  <td style="white-space:nowrap;font-weight:600;"><?php echo $product->price * $cart_item->quantity ?> ش</td>
+                  <td style="display: flex; flex-direction: column; gap: 10px;">
+
+                      <input type="hidden" name="cart_id" value="<?php echo $cart_item->cart_id ?>">
+                      <button type="submit" name="apply-from-cart" class="btn btn-success-soft btn-remove-item" title="تطبيق">
+                        <i class="bi bi-check"></i>
+                      </button>
+                    </form>
+
+                    <form action="cart.php" method="POST">
+                      <input type="hidden" name="cart_item_id" value="<?php echo $cart_item->cart_id ?>">
+                      <button type="submit" name="remove-from-cart" class="btn btn-danger-soft btn-remove-item" title="حذف">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </form>
                   </td>
                 </tr>
-                <!-- Item 2 -->
-                <tr>
-                  <td>
-                    <div class="d-flex align-items-center gap-3">
-                      <div style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg-alt);flex-shrink:0;">
-                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop" alt="سماعات" style="width:100%;height:100%;object-fit:cover;">
-                      </div>
-                      <div>
-                        <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;">سماعات لاسلكية عالية الجودة</h6>
-                        <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">إلكترونيات</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td style="white-space:nowrap;">349 ر.س</td>
-                  <td>
-                    <div class="quantity-control">
-                      <button class="qty-minus" type="button">−</button>
-                      <input type="number" value="2" min="1">
-                      <button class="qty-plus" type="button">+</button>
-                    </div>
-                  </td>
-                  <td style="white-space:nowrap;font-weight:600;">698 ر.س</td>
-                  <td>
-                    <button class="btn btn-danger-soft btn-remove-item" title="حذف">
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </td>
-                </tr>
-                <!-- Item 3 -->
-                <tr>
-                  <td>
-                    <div class="d-flex align-items-center gap-3">
-                      <div style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg-alt);flex-shrink:0;">
-                        <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=100&h=100&fit=crop" alt="حذاء" style="width:100%;height:100%;object-fit:cover;">
-                      </div>
-                      <div>
-                        <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;">حذاء رياضي مريح وعصري</h6>
-                        <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">أحذية</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td style="white-space:nowrap;">199 ر.س</td>
-                  <td>
-                    <div class="quantity-control">
-                      <button class="qty-minus" type="button">−</button>
-                      <input type="number" value="1" min="1">
-                      <button class="qty-plus" type="button">+</button>
-                    </div>
-                  </td>
-                  <td style="white-space:nowrap;font-weight:600;">199 ر.س</td>
-                  <td>
-                    <button class="btn btn-danger-soft btn-remove-item" title="حذف">
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </td>
-                </tr>
+                <?php endforeach ?>
               </tbody>
             </table>
           </div>
 
-          <!-- Continue Shopping -->
           <div class="mt-3">
             <a href="products.php" class="btn btn-outline-custom">
               <i class="bi bi-arrow-right me-2"></i>
@@ -158,85 +145,36 @@
           </div>
         </div>
 
-        <!-- Cart Summary -->
         <div class="col-lg-4">
           <div class="cart-summary" id="cartSummary">
             <h5><i class="bi bi-receipt ms-2"></i>ملخص الطلب</h5>
             <div class="cart-summary-row">
               <span>المجموع الفرعي</span>
-              <span>1,196 ر.س</span>
+              <span><?php echo $total ?> ش</span>
             </div>
             <div class="cart-summary-row">
               <span>الشحن</span>
               <span style="color:var(--color-success);">مجاني</span>
             </div>
             <div class="cart-summary-row">
-              <span>الضريبة (15%)</span>
-              <span>179.40 ر.س</span>
+              <span>الضريبة (1%)</span>
+              <span><?php echo $total * 0.01 ?> ش</span>
             </div>
             <div class="cart-summary-row total">
               <span>الإجمالي</span>
-              <span style="color:var(--color-primary);">1,375.40 ر.س</span>
+              <span style="color:var(--color-primary);"><?php echo $total ?> ش</span>
             </div>
 
-            <!-- Coupon -->
-            <div class="mt-4">
-              <label class="form-label-custom">كود الخصم</label>
-              <div class="d-flex gap-2">
-                <input type="text" class="form-control form-control-custom" placeholder="أدخل كود الخصم" id="couponInput">
-                <button class="btn btn-outline-custom" style="white-space:nowrap;" id="applyCouponBtn">تطبيق</button>
-              </div>
-            </div>
 
-            <button class="btn btn-primary-custom w-100 mt-4" id="checkoutBtn">
+            <form action="">
+              <button class="btn btn-primary-custom w-100 mt-4" id="checkoutBtn">
               <i class="bi bi-lock me-2"></i>
               إتمام الطلب
             </button>
+            </form>
           </div>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-4">
-          <div class="footer-brand"><i class="bi bi-bag-heart"></i> متجر<span>نا</span></div>
-          <p class="footer-text">متجرنا هو وجهتك الأولى للتسوق الإلكتروني. نوفر لك تجربة تسوق سهلة وممتعة مع أفضل المنتجات وأسرع خدمة شحن.</p>
-        </div>
-        <div class="col-6 col-lg-2">
-          <h6 class="footer-heading">روابط سريعة</h6>
-          <ul class="footer-links">
-            <li><a href="index.php">الرئيسية</a></li>
-            <li><a href="products.php">المنتجات</a></li>
-            <li><a href="cart.php">سلة المشتريات</a></li>
-            <li><a href="contact.php">تواصل معنا</a></li>
-          </ul>
-        </div>
-        <div class="col-6 col-lg-2">
-          <h6 class="footer-heading">حسابي</h6>
-          <ul class="footer-links">
-            <li><a href="login.php">تسجيل الدخول</a></li>
-            <li><a href="register.php">إنشاء حساب</a></li>
-            <li><a href="profile.php">الملف الشخصي</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-4">
-          <h6 class="footer-heading">تواصل معنا</h6>
-          <ul class="footer-links">
-            <li><i class="bi bi-geo-alt ms-2 text-primary-custom"></i>الرياض، المملكة العربية السعودية</li>
-            <li><i class="bi bi-telephone ms-2 text-primary-custom"></i><span dir="ltr">+966 50 000 0000</span></li>
-            <li><i class="bi bi-envelope ms-2 text-primary-custom"></i>info@matjarna.com</li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom"><p class="mb-0">© 2026 متجرنا. جميع الحقوق محفوظة.</p></div>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/main.js"></script>
-</body>
-</html>
+<?php include 'includes/footer.php' ?>

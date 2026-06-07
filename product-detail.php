@@ -2,29 +2,102 @@
 $page_title = 'متجرنا — تفاصيل المنتج';
 $page_description = 'تفاصيل المنتج — ساعة يد أنيقة بتصميم كلاسيكي. اطلع على المواصفات والسعر وأضف للسلة.';
 include 'includes/header.php';
+require 'config/config.php';
+
+
+if(isset($_POST['add-to-cart'])){
+  // exit;
+  $user_id = $_SESSION['user_id'];
+  if (!$user_id) {
+    header('Location: auth/login.php');
+    exit;
+  }
+    $product_id = $_POST['product_id'];
+    $quantity_to_add = (int)$_POST['quantity'];
+    
+    $product_stmt = $conn->prepare("SELECT stock_quantity FROM products WHERE product_id = :id");
+    $product_stmt->execute(['id' => $product_id]);
+    $product_data = $product_stmt->fetch(PDO::FETCH_OBJ);
+    $current_stock = $product_data->stock_quantity;
+    
+    if($current_stock <= 0){
+        echo "<script>alert('المنتج غير متوفر حالياً'); window.location.href = 'product-detail.php?id=$product_id';</script>";
+        exit;
+    }
+    
+    $sql = "SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id]);
+    $cart_item = $stmt->fetch(PDO::FETCH_OBJ);
+    
+    $current_cart_quantity = $cart_item ? (int)$cart_item->quantity : 0;
+    
+    if ($current_stock < ($quantity_to_add + $current_cart_quantity)) {
+        $allowed_to_add = $current_stock - $current_cart_quantity;
+        if ($allowed_to_add > 0) {
+            echo "<script>alert('لا يمكنك إضافة هذه الكمية. لديك $current_cart_quantity في السلة والمتبقي في المخزون يسمح بإضافة $allowed_to_add فقط.'); window.location.href = 'product-detail.php?id=$product_id';</script>";
+        } else {
+            echo "<script>alert('لقد أضفت الحد الأقصى المسموح به من هذا المنتج في سلتك.'); window.location.href = 'product-detail.php?id=$product_id';</script>";
+        }
+        exit;
+    }
+    
+    if($cart_item){
+        $sql = "UPDATE cart_items SET quantity = quantity + :quantity_to_add WHERE user_id = :user_id AND product_id = :product_id";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute(['quantity_to_add' => $quantity_to_add, 'user_id' => $user_id, 'product_id' => $product_id]);
+        $msg = 'تمت زيادة كمية المنتج في السلة بنجاح';
+    }else{
+        $sql = "INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity_to_add)";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id, 'quantity_to_add' => $quantity_to_add]);
+        $msg = 'تم إضافة المنتج للسلة بنجاح';
+    }
+    
+    echo "<script>alert('$msg'); window.location.href = 'cart.php';</script>";
+    exit;
+}
+
+$id = $_GET['id'] ;
+if (!$id) {
+  header('Location: errors/404.php');
+  exit;
+}
+$product = $conn->prepare("SELECT * FROM products WHERE product_id = :id");
+$product->execute(['id' => $id]);
+$product = $product->fetch(PDO::FETCH_OBJ);
+
+
+if (!$product) {
+  header('Location: errors/404.php');
+  exit;
+}
+
+$name = $product->name;
+$price = $product->price;
+$description = $product->description;
+$image_url = $product->image_url;
+$stock_quantity = $product->stock_quantity;
+$category_id = $product->category_id;
+
+$category = $conn->prepare("SELECT name FROM categories WHERE category_id = :category_id");
+$category->execute(['category_id' => $category_id]);
+$category = $category->fetch(PDO::FETCH_OBJ);
+
+$category_name = $category->name;
+
+$same_prodects = $conn->prepare("SELECT * FROM products WHERE category_id = :category_id AND product_id != :id ORDER BY created_at DESC LIMIT 4");
+$same_prodects->execute(['category_id' => $category_id, 'id' => $id]);
+$same_prodects = $same_prodects->fetchAll(PDO::FETCH_OBJ);
+$count_same_prodects = count($same_prodects);
+
+
 ?>
 
 <body>
 
   <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-custom sticky-top" id="mainNavbar">
-    <div class="container">
-      <a class="navbar-brand" href="index.php"><i class="bi bi-bag-heart"></i> متجر<span>نا</span></a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mx-auto gap-1">
-          <li class="nav-item"><a class="nav-link" href="index.php">الرئيسية</a></li>
-          <li class="nav-item"><a class="nav-link" href="products.php">المنتجات</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.php">تواصل معنا</a></li>
-        </ul>
-        <div class="nav-actions">
-          <a href="cart.php" class="nav-icon-btn" title="سلة المشتريات"><i class="bi bi-bag"></i><span class="badge-dot"></span></a>
-          <a href="profile.php" class="nav-icon-btn" title="حسابي"><i class="bi bi-person"></i></a>
-          <a href="login.php" class="btn btn-primary-custom btn-sm-custom">تسجيل الدخول</a>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <?php include 'includes/navbar.php' ?>
 
   <!-- PAGE HEADER -->
   <div class="page-header">
@@ -35,7 +108,7 @@ include 'includes/header.php';
         <span class="separator">/</span>
         <a href="products.php">المنتجات</a>
         <span class="separator">/</span>
-        <span>ساعة يد أنيقة</span>
+        <span><?php echo $name ?></span>
       </div>
     </div>
   </div>
@@ -47,76 +120,48 @@ include 'includes/header.php';
         <!-- Product Image -->
         <div class="col-lg-6">
           <div class="product-gallery animate-fadeInUp">
-            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop" alt="ساعة يد أنيقة بتصميم كلاسيكي" id="mainProductImage">
+            <img src="<?php echo $image_url ?>" alt="<?php $name ?>" id="mainProductImage">
           </div>
-          <!-- Thumbnails -->
-          <div class="d-flex gap-3 mt-3">
-            <div class="product-gallery" style="width:80px;height:80px;padding:0.5rem;cursor:pointer;border:2px solid var(--color-primary);aspect-ratio:auto;">
-              <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop" alt="صورة 1" style="border-radius:var(--radius-sm);">
-            </div>
-            <div class="product-gallery" style="width:80px;height:80px;padding:0.5rem;cursor:pointer;border:2px solid var(--color-border-light);aspect-ratio:auto;">
-              <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=100&h=100&fit=crop" alt="صورة 2" style="border-radius:var(--radius-sm);">
-            </div>
-            <div class="product-gallery" style="width:80px;height:80px;padding:0.5rem;cursor:pointer;border:2px solid var(--color-border-light);aspect-ratio:auto;">
-              <img src="https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=100&h=100&fit=crop" alt="صورة 3" style="border-radius:var(--radius-sm);">
-            </div>
-          </div>
-        </div>
+         
 
         <!-- Product Info -->
         <div class="col-lg-6">
           <div class="product-info animate-fadeInUp delay-2">
-            <div class="product-category-label">إكسسوارات</div>
-            <h1>ساعة يد أنيقة بتصميم كلاسيكي</h1>
+            <div class="product-category-label"><?php echo $category_name ?></div>
+            <h1><?php echo $name ?></h1>
 
-            <!-- Rating -->
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <div style="color: var(--color-warning);">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-half"></i>
-              </div>
-              <span class="text-muted-custom" style="font-size: var(--font-size-sm);">(4.5) — 23 تقييم</span>
-            </div>
-
-            <div class="product-detail-price">299 ر.س</div>
+            
+            <div class="product-detail-price"><?php echo $price ?> ش</div>
 
             <p class="product-description">
-              ساعة يد أنيقة بتصميم كلاسيكي يناسب جميع المناسبات. مصنوعة من مواد عالية الجودة مع حزام جلدي مريح. مقاومة للماء حتى 30 متر. تتميز بعقارب مضيئة وزجاج مقاوم للخدش. ضمان سنتين من الشركة المصنعة.
+              <?php echo $description ?>
             </p>
 
-            <!-- Availability -->
             <div class="d-flex align-items-center gap-2 mb-4">
               <span class="status-badge status-completed"><i class="bi bi-check-circle-fill"></i> متوفر في المخزون</span>
             </div>
 
-            <!-- Quantity & Add to Cart -->
+            <form action="product-detail.php" method="POST">
             <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
               <div class="quantity-control">
                 <button class="qty-minus" type="button">−</button>
-                <input type="number" value="1" min="1" id="productQuantity">
-                <button class="qty-plus" type="button">+</button>
+                <input type="number" value="1" min="1" name="quantity" id="productQuantity" max="<?php echo $stock_quantity ?>">
+                <button class="qty-plus" type="button" <?php if($stock_quantity <= 0){ echo 'disabled'; } ?>>+</button>
               </div>
-              <button class="btn btn-primary-custom px-4" id="addToCartBtn">
+              <button type="submit" class="btn btn-primary-custom px-4" id="addToCartBtn" <?php if($stock_quantity <= 0){ echo 'disabled'; } ?>>
                 <i class="bi bi-bag-plus me-2"></i>
                 إضافة للسلة
               </button>
-              <button class="btn btn-outline-custom" id="addToWishlistBtn">
-                <i class="bi bi-heart"></i>
-              </button>
+              <input type="hidden" name="product_id" value="<?php echo $product->product_id ?>">
+              <input type="hidden" name="add-to-cart" value="1">
             </div>
+            </form>
 
-            <!-- Product Meta -->
             <div style="border-top:1px solid var(--color-border-light);padding-top:var(--space-lg);">
               <div class="d-flex gap-4 flex-wrap" style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">
-                <div><strong style="color:var(--color-text);">التصنيف:</strong> إكسسوارات</div>
-                <div><strong style="color:var(--color-text);">الكود:</strong> WCH-001</div>
+                <div><strong style="color:var(--color-text);">التصنيف:</strong> <?php echo $category_name ?></div>
               </div>
             </div>
-
-            <!-- Features -->
             <div style="border-top:1px solid var(--color-border-light);padding-top:var(--space-lg);margin-top:var(--space-lg);">
               <div class="row g-3">
                 <div class="col-6">
@@ -148,76 +193,30 @@ include 'includes/header.php';
           </div>
         </div>
       </div>
-
+      <?php if ($count_same_prodects > 0) { ?>
       <!-- Related Products -->
       <div class="mt-5 pt-4" style="border-top:1px solid var(--color-border-light);">
         <div class="section-header">
           <h2 class="section-title" style="font-size:var(--font-size-xl);">منتجات ذات صلة</h2>
         </div>
         <div class="row g-4">
+          <?php foreach ($same_prodects as $same_prodect) : ?>
           <div class="col-6 col-md-4 col-lg-3">
             <div class="card-custom product-card">
               <div class="product-img-wrapper">
-                <div class="product-actions">
-                  <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                </div>
-                <img src="https://images.unsplash.com/photo-1546868871-af0de0ae72be?w=400&h=400&fit=crop" alt="ساعة ذكية">
+                <img src="<?php echo $same_prodect->image_url ?>" alt="<?php echo $same_prodect->name ?>">
               </div>
               <div class="card-body">
-                <div class="product-category">إلكترونيات</div>
-                <h6 class="product-title"><a href="product-detail.php">ساعة ذكية متعددة الاستخدامات</a></h6>
-                <div class="product-price">699 ر.س</div>
+                <div class="product-category"><?php echo $category_name ?></div>
+                <h6 class="product-title"><a href="product-detail.php?id=<?php echo $same_prodect->product_id ?>"><?php echo $same_prodect->name ?></a></h6>
+                <div class="product-price"><?php echo $same_prodect->price ?> ش</div>
               </div>
             </div>
           </div>
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card-custom product-card">
-              <div class="product-img-wrapper">
-                <div class="product-actions">
-                  <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                </div>
-                <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop" alt="نظارة شمسية">
-              </div>
-              <div class="card-body">
-                <div class="product-category">إكسسوارات</div>
-                <h6 class="product-title"><a href="product-detail.php">نظارة شمسية بإطار أنيق</a></h6>
-                <div class="product-price">129 ر.س</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card-custom product-card">
-              <div class="product-img-wrapper">
-                <div class="product-actions">
-                  <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                </div>
-                <img src="https://images.unsplash.com/photo-1594534475808-b18fc33b045e?w=400&h=400&fit=crop" alt="سوار ذهبي">
-              </div>
-              <div class="card-body">
-                <div class="product-category">إكسسوارات</div>
-                <h6 class="product-title"><a href="product-detail.php">سوار ذهبي أنيق</a></h6>
-                <div class="product-price">175 ر.س</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card-custom product-card">
-              <div class="product-img-wrapper">
-                <span class="product-badge badge-sale">خصم</span>
-                <div class="product-actions">
-                  <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                </div>
-                <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&h=400&fit=crop" alt="عطر فاخر">
-              </div>
-              <div class="card-body">
-                <div class="product-category">عطور</div>
-                <h6 class="product-title"><a href="product-detail.php">عطر فاخر بتركيبة فرنسية</a></h6>
-                <div class="product-price"><span class="old-price">380 ر.س</span> 280 ر.س</div>
-              </div>
-            </div>
-          </div>
+          <?php endforeach; ?>
         </div>
       </div>
+      <?php } ?>
     </div>
   </section>
   <?php include 'includes/footer.php'; ?>
