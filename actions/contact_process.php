@@ -1,9 +1,9 @@
 <?php 
-require_once '../header.php';
-require_once '../../config/config.php';
+require_once 'config/config.php';
+require_once 'config/variables.php';
 
 if(!isset($_POST['send'])) {
-    header("Location: ../../index.php");
+    header("Location: index.php");
     exit;
 }
 
@@ -20,11 +20,10 @@ $stmt->execute([
   'subject' => $subject,
   'message' => $message
 ]);
-echo '<script>alert("تم إرسال رسالتك بنجاح"); window.location.href = "' . APPURL . '/contact.php";</script>';
-
+echo '<script>alert("تم إرسال رسالتك بنجاح"); window.location.href = "contact.php";</script>';
 
 exit;
 } catch (PDOException $e) {
-    echo '<script>alert("حدث خطأ يرجى المحاولة مرة أخرى"); window.location.href = "' . APPURL . '/contact.php";</script>';
+    echo '<script>alert("حدث خطأ يرجى المحاولة مرة أخرى"); window.location.href = "contact.php";</script>';
     exit;
 }

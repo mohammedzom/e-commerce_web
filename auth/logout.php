@@ -1,11 +1,7 @@
 <?php
-
+require "config/variables.php";
 session_start();
-
+session_unset();
 session_destroy();
-
-echo "<pre>";
-print_r($_SESSION);
-echo "</pre>";
-die();
-// header("Location:" . APPURL);
+header("Location: " . APPURL . "index.php");
+exit;

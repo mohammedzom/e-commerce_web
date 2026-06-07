@@ -1,20 +1,11 @@
 <?php
-$env_file = __DIR__ . '/../.env';
-
-if (file_exists($env_file)) {
-    $lines = file($env_file);
-    foreach ($lines as $line) {
-        if (trim($line) !== '' && $line[0] !== '#') {
-            list($key, $value) = explode('=', $line, 2);
-
-            $key = trim($key);
-            $value = trim($value);
-
-            $value = trim($value, "'\"");
-            putenv("$key=$value");
-        }
-    }
+require_once 'variables.php';
+if(isDevelopment) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
 }
+
 $host = getenv('DB_HOST');
 $user = getenv('DB_USER');
 $pass = getenv('DB_PASS');

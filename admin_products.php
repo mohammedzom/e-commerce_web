@@ -1,15 +1,15 @@
 <?php
 $page_description = 'إدارة المنتجات — إضافة وتعديل وحذف المنتجات في المتجر.';
 $page_title = 'إدارة المنتجات';
-include '../includes/header.php';
-require '../config/config.php';
-require_once '../includes/middleware/check-admin.php';
+include 'includes/header.php';
+require 'config/config.php';
+require_once 'includes/middleware/check-admin.php';
 
 
 
 if (isset($_POST['saveProductBtn'])) {
   try {
-    $target_dir = __DIR__ . "/../assets/uploads/images/";
+    $target_dir = __DIR__ . "/assets/uploads/images/";
 
     if (!is_dir($target_dir)) {
       mkdir($target_dir, 0755, true);
@@ -78,7 +78,7 @@ $products = $conn->query("SELECT * FROM products")->fetchAll(PDO::FETCH_OBJ);
   <div class="admin-wrapper">
     <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;"></div>
 
-    <?php include '../includes/admin-sidebar.php'; ?>
+    <?php include 'includes/admin-sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
     <main class="admin-content">

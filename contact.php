@@ -31,7 +31,7 @@ require_once 'config/config.php';
             <h4 style="font-weight:700;margin-bottom:var(--space-sm);">أرسل لنا رسالة</h4>
             <p class="text-muted-custom mb-4" style="font-size:var(--font-size-sm);">يسعدنا سماع ملاحظاتك واستفساراتك. سنرد عليك في أقرب وقت ممكن.</p>
 
-            <form id="contactForm" action="includes/handlers/contact-handler.php" method="post">
+            <form id="contactForm" action="contact_process.php" method="post">
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label-custom" for="contactName">الاسم الكامل</label>

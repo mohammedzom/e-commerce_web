@@ -1,9 +1,7 @@
 <?php
-$page_description = "تسجيل الدخول إلى حسابك في متجرنا للوصول لطلباتك وتفاصيل حسابك.";
-$page_title = "متجرنا — تسجيل الدخول";
+require_once '../includes/header.php';
+
 $error = '';
-require "../config/config.php";
-include "../includes/header.php";
 
 if (isset($_SESSION['user_id'])) {
   header('Location: ' . APPURL);
@@ -26,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $attempt_data->attempts = 0;
     }
   }
+
   if (empty($error)) {
     if (empty($_POST['email']) or empty($_POST['password'])) {
       $error = 'الرجاء ملء جميع الحقول';
@@ -41,26 +40,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fetch = $login->fetch(PDO::FETCH_OBJ);
 
         if ($login->rowCount() > 0 && password_verify($password, $fetch->password)) {
-          $conn->prepare("DELETE FROM login_attempts WHERE ip_address = :ip")->execute(['ip' => $ip_address]);
+          $conn->prepare("DELETE FROM login_attempts WHERE ip_address = :ip")
+          ->execute(['ip' => $ip_address]);
 
           $_SESSION['full_name'] = $fetch->full_name;
           $_SESSION['user_id']   = $fetch->user_id;
           $_SESSION['role']      = $fetch->role;
 
-          header('Location: ' . APPURL);
+          if ($fetch->role == 'admin') {
+              header('Location: ' . APPURL . 'admin_dashboard.php');
+          } else {
+              header('Location: ' . APPURL);
+          }
           exit;
         } else {
           $error = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
           if ($attempt_data) {
-            $conn->prepare("UPDATE login_attempts SET attempts = attempts + 1, last_attempt = CURRENT_TIMESTAMP WHERE ip_address = :ip")->execute(['ip' => $ip_address]);
+            $conn->prepare("UPDATE login_attempts SET attempts = attempts + 1, last_attempt = CURRENT_TIMESTAMP WHERE ip_address = :ip")
+            ->execute(['ip' => $ip_address]);
           } else {
-            $conn->prepare("INSERT INTO login_attempts (ip_address, attempts) VALUES (:ip, 1)")->execute(['ip' => $ip_address]);
+            $conn->prepare("INSERT INTO login_attempts (ip_address, attempts) VALUES (:ip, 1)")
+            ->execute(['ip' => $ip_address]);
           }
         }
       }
     }
   }
 }
+
+$page_description = "تسجيل الدخول إلى حسابك في متجرنا للوصول لطلباتك وتفاصيل حسابك.";
+$page_title = "متجرنا — تسجيل الدخول";
 ?>
 
 <body>
@@ -114,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </button>
       </form>
       <p class="text-center mb-0" style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">
-        ليس لديك حساب؟ <a href="<?php echo APPURL; ?>auth/register.php" style="font-weight:600;">إنشاء حساب جديد</a>
+        ليس لديك حساب؟ <a href="<?php echo APPURL; ?>register.php" style="font-weight:600;">إنشاء حساب جديد</a>
       </p>
     </div>
   </div>

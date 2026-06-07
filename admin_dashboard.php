@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="لوحة التحكم — إدارة المتجر ومتابعة الإحصائيات.">
-  <title>متجرنا — لوحة التحكم</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+<?php
+$page_description = "لوحة التحكم — إدارة المتجر ومتابعة الإحصائيات.";
+$page_title = "متجرنا — لوحة التحكم";
+include 'includes/header.php';
+?>
 
   <div class="admin-wrapper">
     <!-- Sidebar Overlay (Mobile) -->

@@ -209,7 +209,7 @@ foreach ($categories as $category) {
                 </div>
               <div class="card-body">
                 <div class="product-category"><?php echo isset($catory_list[$product->category_id]) ? htmlspecialchars($catory_list[$product->category_id]) : 'غير مصنف' ?></div>
-                <h6 class="product-title"><a href="product-detail.php?id=<?php echo $product->product_id ?>"><?php echo $product->name ?></a></h6>
+                <h6 class="product-title"><a href="product_detail.php?id=<?php echo $product->product_id ?>"><?php echo $product->name ?></a></h6>
                 <ul style="display: flex; justify-content: space-between; align-items: center;">
                   <li>
                     <div class="product-price"><?php echo $product->price ?> ش</div>

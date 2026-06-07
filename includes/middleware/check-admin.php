@@ -11,6 +11,6 @@ $user->execute(['user_id' => $_SESSION['user_id']]);
 $user = $user->fetch(PDO::FETCH_OBJ);
 
 if ($user->role !== 'admin') {
-    include '../errors/403.php';
+    include __DIR__ . '/../../errors/403.php';
     exit;
 }

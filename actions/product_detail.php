@@ -5,57 +5,7 @@ include 'includes/header.php';
 require 'config/config.php';
 
 
-if(isset($_POST['add-to-cart'])){
-  $user_id = $_SESSION['user_id'];
-  if (!$user_id) {
-    echo '<script>alert("يجب تسجيل الدخول أولاً"); window.location.href = "auth/login.php";</script>';
-    exit;
-  }
-    $product_id = $_POST['product_id'];
-    $quantity_to_add = (int)$_POST['quantity'];
-    
-    $product_stmt = $conn->prepare("SELECT stock_quantity FROM products WHERE product_id = :id");
-    $product_stmt->execute(['id' => $product_id]);
-    $product_data = $product_stmt->fetch(PDO::FETCH_OBJ);
-    $current_stock = $product_data->stock_quantity;
-    
-    if($current_stock <= 0){
-        echo "<script>alert('المنتج غير متوفر حالياً'); window.location.href = 'product-detail.php?id=$product_id';</script>";
-        exit;
-    }
-    
-    $sql = "SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id]);
-    $cart_item = $stmt->fetch(PDO::FETCH_OBJ);
-    
-    $current_cart_quantity = $cart_item ? (int)$cart_item->quantity : 0;
-    
-    if ($current_stock < ($quantity_to_add + $current_cart_quantity)) {
-        $allowed_to_add = $current_stock - $current_cart_quantity;
-        if ($allowed_to_add > 0) {
-            echo "<script>alert('لا يمكنك إضافة هذه الكمية. لديك $current_cart_quantity في السلة والمتبقي في المخزون يسمح بإضافة $allowed_to_add فقط.'); window.location.href = 'product-detail.php?id=$product_id';</script>";
-        } else {
-            echo "<script>alert('لقد أضفت الحد الأقصى المسموح به من هذا المنتج في سلتك.'); window.location.href = 'product-detail.php?id=$product_id';</script>";
-        }
-        exit;
-    }
-    
-    if($cart_item){
-        $sql = "UPDATE cart_items SET quantity = quantity + :quantity_to_add WHERE user_id = :user_id AND product_id = :product_id";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute(['quantity_to_add' => $quantity_to_add, 'user_id' => $user_id, 'product_id' => $product_id]);
-        $msg = 'تمت زيادة كمية المنتج في السلة بنجاح';
-    }else{
-        $sql = "INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity_to_add)";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id, 'quantity_to_add' => $quantity_to_add]);
-        $msg = 'تم إضافة المنتج للسلة بنجاح';
-    }
-    
-    echo "<script>alert('$msg'); window.location.href = 'cart.php';</script>";
-    exit;
-}
+
 
 $id = $_GET['id'] ;
 if (!$id) {
@@ -144,7 +94,7 @@ $count_same_prodects = count($same_prodects);
               <?php endif; ?>
             </div>
 
-            <form action="product-detail.php" method="POST" class="bg-white p-3 rounded-4 shadow-sm mb-4" style="border: 1px solid var(--color-border-light);">
+            <form action="add_to_cart.php" method="POST" class="bg-white p-3 rounded-4 shadow-sm mb-4" style="border: 1px solid var(--color-border-light);">
               <div class="d-flex align-items-center gap-3 flex-wrap">
                 <div class="quantity-control">
                   <button class="qty-minus" name="remove" type="button">−</button>
@@ -180,7 +130,7 @@ $count_same_prodects = count($same_prodects);
               </div>
               <div class="card-body">
                 <div class="product-category"><?php echo $category_name ?></div>
-                <h6 class="product-title"><a href="product-detail.php?id=<?php echo $same_prodect->product_id ?>"><?php echo $same_prodect->name ?></a></h6>
+                <h6 class="product-title"><a href="product_detail.php?id=<?php echo $same_prodect->product_id ?>"><?php echo $same_prodect->name ?></a></h6>
                 <div class="product-price"><?php echo $same_prodect->price ?> ش</div>
               </div>
             </div>

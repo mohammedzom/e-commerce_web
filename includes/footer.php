@@ -67,8 +67,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Main JS -->
-<script src="<?= APPURL ?>/js/main.js?v=<?php echo time(); ?>"></script>
+<script src="<?php echo APPURL . '/js/main.js?v=' . time(); ?>"></script>
 
 </body>
 

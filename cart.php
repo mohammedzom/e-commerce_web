@@ -9,26 +9,7 @@ $user_id = $_SESSION['user_id'];
 $cart_items = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id");
 $cart_items->execute(['user_id' => $user_id]);
 $cart_items = $cart_items->fetchAll(PDO::FETCH_OBJ);
-if (isset($_POST['remove-from-cart'])) {
-  $cart_item_id = $_POST['cart_item_id'];
-  $cart_item = $conn->prepare("DELETE FROM cart_items WHERE cart_id = :cart_item_id AND user_id = :user_id");
-  $cart_item->execute(['cart_item_id' => $cart_item_id, 'user_id' => $user_id]);
-  header('Location: cart.php');
-  exit;
-}
-if (isset($_POST['apply-from-cart'])) {
-  $cart_id = $_POST['cart_id'];
-  $new_quantity = $_POST['new_quantity'];
-  $sql = "UPDATE cart_items SET quantity = :new_quantity WHERE cart_id = :cart_id AND user_id = :user_id";
-  $stmt = $conn->prepare($sql);
-  $stmt->execute([
-    'new_quantity' => $new_quantity,
-    'cart_id' => $cart_id,
-    'user_id' => $user_id
-  ]);
-  echo "<script>alert('تم تحديث الكمية'); window.location.href = 'cart.php';</script>";
-  exit;
-}
+
 $count_cart_items = count($cart_items);
 
 $total = 0;
@@ -101,7 +82,7 @@ foreach ($cart_items as $cart_item) {
                     </div>
                   </td>
                   <td style="white-space:nowrap;"><?php echo $product->price ?> ش</td>
-                  <form action="cart.php" method="POST">
+                  <form action="update_cart.php" method="POST">
                   <td>
                     <div class="quantity-control">
                       <button class="qty-minus" type="button">−</button>
@@ -118,7 +99,7 @@ foreach ($cart_items as $cart_item) {
                       </button>
                     </form>
 
-                    <form action="cart.php" method="POST">
+                    <form action="remove_from_cart.php" method="POST">
                       <input type="hidden" name="cart_item_id" value="<?php echo $cart_item->cart_id ?>">
                       <button type="submit" name="remove-from-cart" class="btn btn-danger-soft btn-remove-item" title="حذف">
                         <i class="bi bi-trash3"></i>
@@ -160,7 +141,7 @@ foreach ($cart_items as $cart_item) {
             </div>
 
 
-            <form action="">
+            <form action="checkout.php" method="POST">
               <button class="btn btn-primary-custom w-100 mt-4" id="checkoutBtn">
               <i class="bi bi-lock me-2"></i>
               إتمام الطلب

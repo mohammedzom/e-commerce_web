@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-
 <?php
 $page_title = 'الصفحة الرئيسية';
 $page_description = 'متجرنا — تسوّق أفضل المنتجات بجودة عالية وأسعار مناسبة. شحن سريع وخدمة عملاء متميزة.';
@@ -10,34 +7,6 @@ include 'includes/header.php';
 $products = $conn->query("SELECT * FROM products WHERE stock_quantity > 0 LIMIT 4");
 $products = $products->fetchAll(PDO::FETCH_OBJ);
 
-if (isset($_POST['add-to-cart'])) {
-  $product_id = $_POST['product_id'];
-  $user_id = $_SESSION['user_id'];
-  if (!$user_id) {
-    echo '<script>alert("يجب تسجيل الدخول أولاً"); window.location.href = "auth/login.php";</script>';
-    exit;
-  }
-  $product = $conn->prepare("SELECT * FROM products WHERE product_id = :id");
-  $product->execute(['id' => $product_id]);
-  $product = $product->fetch(PDO::FETCH_OBJ);
-  if ($product->stock_quantity <= 0) {
-    echo "<script>alert('المنتج غير متوفر حالياً');</script>";
-    exit;
-  }
-  $cart_item = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
-  $cart_item->execute(['user_id' => $_SESSION['user_id'], 'product_id' => $product_id]);
-  $cart_item = $cart_item->fetch(PDO::FETCH_OBJ);
-  if ($cart_item) {
-    echo "<script>alert('المنتج موجود بالفعل في السلة'); window.location.href = 'cart.php';</script>";
-    exit;
-  } else {
-    $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)")
-    ->execute(['user_id' => $_SESSION['user_id'], 'product_id' => $product_id, 'quantity' => 1]);
-
-    echo "<script>alert('تمت الإضافة إلى السلة'); window.location.href = 'cart.php';</script>";
-    exit;
-  }
-}
 
 
 if (isset($_POST['subscribe'])) {
@@ -129,13 +98,13 @@ foreach ($categories as $category) {
                 </div>
               <div class="card-body">
                 <div class="product-category"><?php echo isset($catory_list[$product->category_id]) ? htmlspecialchars($catory_list[$product->category_id]) : 'غير مصنف' ?></div>
-                <h6 class="product-title"><a href="product-detail.php?id=<?php echo $product->product_id ?>"><?php echo $product->name ?></a></h6>
+                <h6 class="product-title"><a href="product_detail.php?id=<?php echo $product->product_id ?>"><?php echo $product->name ?></a></h6>
                 <ul style="display: flex; justify-content: space-between; align-items: center;">
                   <li>
                     <div class="product-price"><?php echo $product->price ?> ش</div>
                   </li>
                   <li>
-                    <form method="POST">
+                    <form method="POST" action="add_to_cart.php">
                       <input type="hidden" name="product_id" value="<?php echo $product->product_id ?>">
                       <button type="submit" name="add-to-cart" class="btn btn-primary btn-sm" title="أضف للسلة" style="padding: 6px 12px;"> 
                         <i class="bi bi-cart"></i> إضافة للسلة 
