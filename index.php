@@ -10,6 +10,36 @@ include 'includes/header.php';
 $products = $conn->query("SELECT * FROM products WHERE stock_quantity > 0 LIMIT 4");
 $products = $products->fetchAll(PDO::FETCH_OBJ);
 
+if (isset($_POST['add-to-cart'])) {
+  $product_id = $_POST['product_id'];
+  $user_id = $_SESSION['user_id'];
+  if (!$user_id) {
+    echo '<script>alert("يجب تسجيل الدخول أولاً"); window.location.href = "auth/login.php";</script>';
+    exit;
+  }
+  $product = $conn->prepare("SELECT * FROM products WHERE product_id = :id");
+  $product->execute(['id' => $product_id]);
+  $product = $product->fetch(PDO::FETCH_OBJ);
+  if ($product->stock_quantity <= 0) {
+    echo "<script>alert('المنتج غير متوفر حالياً');</script>";
+    exit;
+  }
+  $cart_item = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
+  $cart_item->execute(['user_id' => $_SESSION['user_id'], 'product_id' => $product_id]);
+  $cart_item = $cart_item->fetch(PDO::FETCH_OBJ);
+  if ($cart_item) {
+    echo "<script>alert('المنتج موجود بالفعل في السلة'); window.location.href = 'cart.php';</script>";
+    exit;
+  } else {
+    $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)")
+    ->execute(['user_id' => $_SESSION['user_id'], 'product_id' => $product_id, 'quantity' => 1]);
+
+    echo "<script>alert('تمت الإضافة إلى السلة'); window.location.href = 'cart.php';</script>";
+    exit;
+  }
+}
+
+
 if (isset($_POST['subscribe'])) {
   $email = $_POST['email'];
 
@@ -33,6 +63,14 @@ if (isset($_POST['subscribe'])) {
 if (isset($_GET['search'])) {
   $search = $_GET['search'];
   header("Location: products.php?search=$search");
+}
+
+$categories = $conn->prepare("SELECT * FROM categories");
+$categories->execute();
+$categories = $categories->fetchAll(PDO::FETCH_OBJ);
+$catory_list = [];
+foreach ($categories as $category) {
+  $catory_list[$category->category_id] = $category->name;
 }
 ?>
 
@@ -60,72 +98,11 @@ if (isset($_GET['search'])) {
                 </button>
               </form>
             </div>
-            <div class="d-flex gap-4 mt-4">
-              <div>
-                <div style="font-size:1.5rem;font-weight:700;color:var(--color-text);">+500</div>
-                <div style="font-size:0.8rem;color:var(--color-text-muted);">منتج متوفر</div>
-              </div>
-              <div>
-                <div style="font-size:1.5rem;font-weight:700;color:var(--color-text);">+2,000</div>
-                <div style="font-size:0.8rem;color:var(--color-text-muted);">عميل سعيد</div>
-              </div>
-              <div>
-                <div style="font-size:1.5rem;font-weight:700;color:var(--color-text);">24/7</div>
-                <div style="font-size:0.8rem;color:var(--color-text-muted);">دعم فني</div>
-              </div>
-            </div>
           </div>
         </div>
         <div class="col-lg-6 d-none d-lg-block">
           <div class="hero-image animate-fadeInUp delay-2">
             <img src="assets/images/hero.jpeg" alt="تسوق أونلاين">
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ============================================
-       FEATURES SECTION
-       ============================================ -->
-  <section class="section-padding" style="background-color: var(--color-white);" id="features">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-md-6 col-lg-3 reveal">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-truck"></i>
-            </div>
-            <h5>شحن مجاني</h5>
-            <p>شحن مجاني لجميع الطلبات فوق 200 ش</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3 reveal">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-shield-check"></i>
-            </div>
-            <h5>ضمان الجودة</h5>
-            <p>جميع منتجاتنا أصلية ومضمونة 100%</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3 reveal">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-arrow-repeat"></i>
-            </div>
-            <h5>استرجاع سهل</h5>
-            <p>إمكانية الاسترجاع خلال 14 يوم</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3 reveal">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="bi bi-headset"></i>
-            </div>
-            <h5>دعم متواصل</h5>
-            <p>فريق دعم متاح على مدار الساعة</p>
           </div>
         </div>
       </div>
@@ -142,28 +119,35 @@ if (isset($_GET['search'])) {
       <div class="row g-4">
 
         <?php
-        foreach ($products as $product) {
+        foreach ($products as $product) :
         ?>
-          <div class="col-6 col-md-4 col-lg-3 reveal">
-            <div class="card-custom product-card">
-              <div class="product-img-wrapper">
-                <div class="product-actions">
-                  <button class="product-action-btn" title="أضف للمفضلة"><i class="bi bi-heart"></i></button>
-                  <button class="product-action-btn" title="عرض سريع"><i class="bi bi-eye"></i></button>
+          
+            <div class="col-6 col-md-4">
+              <div class="card-custom product-card">
+                <div class="product-img-wrapper">
+                  <img src="<?php echo $product->image_url ?>" alt="<?php echo $product->name ?>">
                 </div>
-                <img src="<?php echo $product->image_url ?>" alt="<?php echo $product->name ?>">
-              </div>
               <div class="card-body">
-                <div class="product-category"><?php echo $product->category ?></div>
+                <div class="product-category"><?php echo isset($catory_list[$product->category_id]) ? htmlspecialchars($catory_list[$product->category_id]) : 'غير مصنف' ?></div>
                 <h6 class="product-title"><a href="product-detail.php?id=<?php echo $product->product_id ?>"><?php echo $product->name ?></a></h6>
-                <div class="product-price">
-                  <?php echo $product->price ?> ش
-                </div>
+                <ul style="display: flex; justify-content: space-between; align-items: center;">
+                  <li>
+                    <div class="product-price"><?php echo $product->price ?> ش</div>
+                  </li>
+                  <li>
+                    <form method="POST">
+                      <input type="hidden" name="product_id" value="<?php echo $product->product_id ?>">
+                      <button type="submit" name="add-to-cart" class="btn btn-primary btn-sm" title="أضف للسلة" style="padding: 6px 12px;"> 
+                        <i class="bi bi-cart"></i> إضافة للسلة 
+                      </button>
+                    </form>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         <?php
-        }
+        endforeach;
         ?>
         <div class="text-center mt-5 reveal">
           <a href="products.php" class="btn btn-outline-custom px-4">

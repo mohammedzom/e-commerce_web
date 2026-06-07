@@ -1,6 +1,6 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header("Location: " . APPURL . "auth/login.php");
+    echo '<script>alert("يجب تسجيل الدخول أولاً"); window.location.href = "' . APPURL . 'auth/login.php";</script>';
     exit;
 }

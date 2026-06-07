@@ -36,13 +36,7 @@ foreach ($cart_items as $cart_item) {
   $product = $conn->prepare("SELECT price FROM products WHERE product_id = :product_id");
   $product->execute(['product_id' => $cart_item->product_id]);
   $product = $product->fetch(PDO::FETCH_OBJ);
-  // $sql = "UPDATE cart_items SET unit_price = :unit_price WHERE cart_item_id = :cart_item_id AND user_id = :user_id";
-  // $stmt = $conn->prepare($sql);
-  // $stmt->execute([
-  //   'unit_price' => $product->price,
-  //   'cart_item_id' => $cart_item->cart_item_id,
-  //   'user_id' => $user_id
-  // ]);
+
   $total += $product->price * $cart_item->quantity;
 }
 

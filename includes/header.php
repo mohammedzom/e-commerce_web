@@ -1,6 +1,13 @@
 <?php
+$isProduction = getenv("APP_ENV") === "production";
+$isDevelopment = getenv("APP_ENV") === "development";
+if ($isDevelopment) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+}
 session_start();
-define("APPURL", "http://localhost/E-Commerce/");
+define("APPURL", getenv("APPURL", "http://localhost/E-Commerce/"));
 
 ?>
 

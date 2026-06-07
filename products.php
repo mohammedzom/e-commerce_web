@@ -68,7 +68,7 @@ $products = $stmt->fetchAll(PDO::FETCH_OBJ);
 if (isset($_POST['add-to-cart'])) {
   $product_id = filter_input(INPUT_POST, 'product_id', FILTER_SANITIZE_NUMBER_INT);
   if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('قم بتسجيل الدخول أولاً');</script>";
+    echo '<script>alert("يجب تسجيل الدخول أولاً"); window.location.href = "auth/login.php";</script>';
     exit;
   }
   $product = $conn->prepare("SELECT * FROM products WHERE product_id = :id");

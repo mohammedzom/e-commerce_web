@@ -8,7 +8,7 @@ require 'config/config.php';
 if(isset($_POST['add-to-cart'])){
   $user_id = $_SESSION['user_id'];
   if (!$user_id) {
-    header('Location: auth/login.php');
+    echo '<script>alert("يجب تسجيل الدخول أولاً"); window.location.href = "auth/login.php";</script>';
     exit;
   }
     $product_id = $_POST['product_id'];
@@ -159,45 +159,6 @@ $count_same_prodects = count($same_prodects);
                 <input type="hidden" name="add-to-cart" value="1">
               </div>
             </form>
-
-            <div class="mt-4 pt-4 border-top border-light">
-              <div class="bg-light rounded-4 p-4">
-                <div class="row g-4">
-                  <div class="col-6">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
-                        <i class="bi bi-truck text-primary fs-5"></i>
-                      </div>
-                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">شحن سريع</span>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
-                        <i class="bi bi-arrow-repeat text-primary fs-5"></i>
-                      </div>
-                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">استرجاع سهل</span>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
-                        <i class="bi bi-shield-check text-primary fs-5"></i>
-                      </div>
-                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">ضمان سنتين</span>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="d-flex align-items-center gap-3">
-                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
-                        <i class="bi bi-credit-card text-primary fs-5"></i>
-                      </div>
-                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">دفع إلكتروني آمن</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

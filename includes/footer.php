@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row g-4">
             <!-- Brand -->
-            <div class="col-lg-4">
+            <div class="col-lg-6">
                 <div class="footer-brand">
                     <i class="bi bi-bag-heart"></i>
                     متجر<span>نا</span>
@@ -16,22 +16,15 @@
             <div class="col-6 col-lg-2">
                 <h6 class="footer-heading">روابط سريعة</h6>
                 <ul class="footer-links">
-                    <li><a href="index.php">الرئيسية</a></li>
-                    <li><a href="products.php">المنتجات</a></li>
-                    <li><a href="cart.php">سلة المشتريات</a></li>
-                    <li><a href="contact.php">تواصل معنا</a></li>
+                    <li><a href="<?= APPURL ?>/index.php">الرئيسية</a></li>
+                    <li><a href="<?= APPURL ?>/products.php">المنتجات</a></li>
+                    <?php if(isset($_SESSION['user_id'])): ?>
+                    <li><a href="<?= APPURL ?>/cart.php">سلة المشتريات</a></li>
+                    <?php endif; ?>
+                    <li><a href="<?= APPURL ?>/contact.php">تواصل معنا</a></li>
                 </ul>
             </div>
 
-            <!-- Account -->
-            <div class="col-6 col-lg-2">
-                <h6 class="footer-heading">حسابي</h6>
-                <ul class="footer-links">
-                    <li><a href="login.php">تسجيل الدخول</a></li>
-                    <li><a href="register.php">إنشاء حساب</a></li>
-                    <li><a href="profile.php">الملف الشخصي</a></li>
-                </ul>
-            </div>
 
             <!-- Contact Info -->
             <div class="col-lg-4">
@@ -75,7 +68,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Main JS -->
-<script src="js/main.js?v=<?php echo time(); ?>"></script>
+<script src="<?= APPURL ?>/js/main.js?v=<?php echo time(); ?>"></script>
 
 </body>
 
