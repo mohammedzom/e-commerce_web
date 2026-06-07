@@ -11,7 +11,8 @@
    ============================================ */
 :root {
   /* — Primary palette — */
-  --color-primary: #6AADCF;          /* Soft blue accent */
+  --color-primary: #6AADCF;
+  /* Soft blue accent */
   --color-primary-hover: #5899BB;
   --color-primary-light: #E8F4FA;
   --color-primary-ultra-light: #F3F9FC;
@@ -965,7 +966,6 @@ ul {
   font-weight: 700;
 }
 
-/* Stat Cards */
 .stat-card {
   background-color: var(--color-white);
   border: 1px solid var(--color-border-light);
@@ -1027,9 +1027,14 @@ ul {
   justify-content: center;
 }
 
-.quantity-control button:hover {
+.quantity-control button:hover:not(:disabled) {
   background-color: var(--color-bg-alt);
   color: var(--color-primary);
+}
+
+.quantity-control button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .quantity-control input {
@@ -1178,6 +1183,18 @@ ul {
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
   margin-bottom: var(--space-lg);
+  transition: box-shadow var(--transition-base);
+}
+
+.filter-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+/* — Search filter card accent — */
+.filter-card-search {
+  position: relative;
+  overflow: hidden;
+  border-top: 3px solid var(--color-primary);
 }
 
 .filter-card h6 {
@@ -1185,6 +1202,108 @@ ul {
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-md);
   color: var(--color-text);
+}
+
+/* — Search input group — */
+.search-input-group {
+  position: relative;
+}
+
+.search-input-icon {
+  position: absolute;
+  top: 50%;
+  right: 0.85rem;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  transition: color var(--transition-fast);
+}
+
+.search-input-group .search-input {
+  padding-right: 2.5rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.search-input-group .search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(106, 173, 207, 0.12);
+}
+
+.search-input-group .search-input:focus~.search-input-icon,
+.search-input-group:focus-within .search-input-icon {
+  color: var(--color-primary);
+}
+
+/* — Search action buttons — */
+.search-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.btn-search-primary {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(106, 173, 207, 0.25);
+}
+
+.btn-search-primary:hover {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, #4a87a5 100%);
+  box-shadow: 0 4px 12px rgba(106, 173, 207, 0.35);
+  transform: translateY(-1px);
+  color: var(--color-white);
+}
+
+.btn-search-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(106, 173, 207, 0.20);
+}
+
+.btn-search-clear {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: var(--color-danger);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-search-clear:hover {
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  transform: translateY(-1px);
+}
+
+.btn-search-clear:active {
+  transform: translateY(0);
 }
 
 .filter-card .form-check {
@@ -1287,6 +1406,7 @@ ul {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1294,8 +1414,13 @@ ul {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fadeInUp {
@@ -1306,25 +1431,61 @@ ul {
   animation: fadeIn 0.5s ease forwards;
 }
 
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
+.delay-1 {
+  animation-delay: 0.1s;
+}
+
+.delay-2 {
+  animation-delay: 0.2s;
+}
+
+.delay-3 {
+  animation-delay: 0.3s;
+}
+
+.delay-4 {
+  animation-delay: 0.4s;
+}
 
 
 /* ============================================
    22. Utility Classes
    ============================================ */
-.bg-primary-light { background-color: var(--color-primary-light) !important; }
-.bg-success-light { background-color: var(--color-success-light) !important; }
-.bg-warning-light { background-color: var(--color-warning-light) !important; }
-.bg-danger-light  { background-color: var(--color-danger-light) !important; }
-.bg-info-light    { background-color: var(--color-info-light) !important; }
+.bg-primary-light {
+  background-color: var(--color-primary-light) !important;
+}
 
-.text-primary-custom { color: var(--color-primary) !important; }
-.text-success-custom { color: var(--color-success) !important; }
-.text-danger-custom  { color: var(--color-danger) !important; }
-.text-warning-custom { color: var(--color-warning) !important; }
+.bg-success-light {
+  background-color: var(--color-success-light) !important;
+}
+
+.bg-warning-light {
+  background-color: var(--color-warning-light) !important;
+}
+
+.bg-danger-light {
+  background-color: var(--color-danger-light) !important;
+}
+
+.bg-info-light {
+  background-color: var(--color-info-light) !important;
+}
+
+.text-primary-custom {
+  color: var(--color-primary) !important;
+}
+
+.text-success-custom {
+  color: var(--color-success) !important;
+}
+
+.text-danger-custom {
+  color: var(--color-danger) !important;
+}
+
+.text-warning-custom {
+  color: var(--color-warning) !important;
+}
 
 
 /* ============================================

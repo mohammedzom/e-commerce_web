@@ -6,7 +6,6 @@ require 'config/config.php';
 
 
 if(isset($_POST['add-to-cart'])){
-  // exit;
   $user_id = $_SESSION['user_id'];
   if (!$user_id) {
     header('Location: auth/login.php');
@@ -96,10 +95,8 @@ $count_same_prodects = count($same_prodects);
 
 <body>
 
-  <!-- NAVBAR -->
   <?php include 'includes/navbar.php' ?>
 
-  <!-- PAGE HEADER -->
   <div class="page-header">
     <div class="container">
       <h1>تفاصيل المنتج</h1>
@@ -113,79 +110,90 @@ $count_same_prodects = count($same_prodects);
     </div>
   </div>
 
-  <!-- PRODUCT DETAIL -->
   <section class="section-padding">
     <div class="container">
       <div class="row g-5">
-        <!-- Product Image -->
         <div class="col-lg-6">
-          <div class="product-gallery animate-fadeInUp">
-            <img src="<?php echo $image_url ?>" alt="<?php $name ?>" id="mainProductImage">
+          <div class="product-gallery animate-fadeInUp shadow-sm bg-white" style="border: 1px solid var(--color-border-light); padding: 2rem;">
+            <img src="<?php echo htmlspecialchars($image_url) ?>" alt="<?php echo htmlspecialchars($name) ?>" id="mainProductImage" class="img-fluid rounded-3" style="max-height: 500px; object-fit: contain;">
           </div>
+        </div>
          
-
-        <!-- Product Info -->
         <div class="col-lg-6">
           <div class="product-info animate-fadeInUp delay-2">
-            <div class="product-category-label"><?php echo $category_name ?></div>
-            <h1><?php echo $name ?></h1>
-
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="product-category-label px-3 py-1 bg-primary-light text-primary-custom rounded-pill d-inline-block fw-bold"><?php echo htmlspecialchars($category_name) ?></div>
+            </div>
+            <h1 class="fw-bold mb-3" style="color: var(--color-text); font-size: 2.2rem;"><?php echo htmlspecialchars($name) ?></h1>
             
-            <div class="product-detail-price"><?php echo $price ?> ش</div>
+            <div class="product-detail-price mb-4" style="font-size: 2.2rem; color: var(--color-primary); font-weight: 800;"><?php echo htmlspecialchars($price) ?> <span class="fs-5 text-muted fw-normal">شيكل</span></div>
 
-            <p class="product-description">
-              <?php echo $description ?>
+            <p class="product-description text-secondary fs-6 mb-4" style="line-height: 1.8;">
+              <?php echo nl2br(htmlspecialchars($description)) ?>
             </p>
 
             <div class="d-flex align-items-center gap-2 mb-4">
-              <span class="status-badge status-completed"><i class="bi bi-check-circle-fill"></i> متوفر في المخزون</span>
+              <?php if ($stock_quantity > 0): ?>
+                <span class="status-badge bg-success-light text-success-custom px-3 py-2 rounded-pill shadow-sm" style="font-weight: 600;">
+                  <i class="bi bi-check-circle-fill me-1"></i> متوفر في المخزون (<?php echo $stock_quantity; ?>)
+                </span>
+              <?php else: ?>
+                <span class="status-badge bg-danger-light text-danger-custom px-3 py-2 rounded-pill shadow-sm" style="font-weight: 600;">
+                  <i class="bi bi-x-circle-fill me-1"></i> غير متوفر حالياً
+                </span>
+              <?php endif; ?>
             </div>
 
-            <form action="product-detail.php" method="POST">
-            <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-              <div class="quantity-control">
-                <button class="qty-minus" type="button">−</button>
-                <input type="number" value="1" min="1" name="quantity" id="productQuantity" max="<?php echo $stock_quantity ?>">
-                <button class="qty-plus" type="button" <?php if($stock_quantity <= 0){ echo 'disabled'; } ?>>+</button>
+            <form action="product-detail.php" method="POST" class="bg-white p-3 rounded-4 shadow-sm mb-4" style="border: 1px solid var(--color-border-light);">
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="quantity-control">
+                  <button class="qty-minus" name="remove" type="button">−</button>
+                  <input type="number" value="1" min="1" name="quantity" id="productQuantity" max="<?php echo $stock_quantity ?>">
+                  <button class="qty-plus" name="add" type="button" <?php if($stock_quantity <= 1){ echo 'disabled'; } ?>>+</button>
+                </div>
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold d-flex align-items-center justify-content-center flex-grow-1" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%); border: none; box-shadow: 0 4px 12px rgba(106, 173, 207, 0.25); height: 48px; border-radius: var(--radius-md);" id="addToCartBtn" <?php if($stock_quantity <= 0){ echo 'disabled'; } ?>>
+                  <i class="bi bi-bag-plus fs-5 ms-2"></i>
+                  إضافة للسلة
+                </button>
+                <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product->product_id) ?>">
+                <input type="hidden" name="add-to-cart" value="1">
               </div>
-              <button type="submit" class="btn btn-primary-custom px-4" id="addToCartBtn" <?php if($stock_quantity <= 0){ echo 'disabled'; } ?>>
-                <i class="bi bi-bag-plus me-2"></i>
-                إضافة للسلة
-              </button>
-              <input type="hidden" name="product_id" value="<?php echo $product->product_id ?>">
-              <input type="hidden" name="add-to-cart" value="1">
-            </div>
             </form>
 
-            <div style="border-top:1px solid var(--color-border-light);padding-top:var(--space-lg);">
-              <div class="d-flex gap-4 flex-wrap" style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">
-                <div><strong style="color:var(--color-text);">التصنيف:</strong> <?php echo $category_name ?></div>
-              </div>
-            </div>
-            <div style="border-top:1px solid var(--color-border-light);padding-top:var(--space-lg);margin-top:var(--space-lg);">
-              <div class="row g-3">
-                <div class="col-6">
-                  <div class="d-flex align-items-center gap-2" style="font-size:var(--font-size-sm);">
-                    <i class="bi bi-truck text-primary-custom"></i>
-                    <span>شحن مجاني</span>
+            <div class="mt-4 pt-4 border-top border-light">
+              <div class="bg-light rounded-4 p-4">
+                <div class="row g-4">
+                  <div class="col-6">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="bi bi-truck text-primary fs-5"></i>
+                      </div>
+                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">شحن سريع</span>
+                    </div>
                   </div>
-                </div>
-                <div class="col-6">
-                  <div class="d-flex align-items-center gap-2" style="font-size:var(--font-size-sm);">
-                    <i class="bi bi-arrow-repeat text-primary-custom"></i>
-                    <span>استرجاع خلال 14 يوم</span>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="bi bi-arrow-repeat text-primary fs-5"></i>
+                      </div>
+                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">استرجاع سهل</span>
+                    </div>
                   </div>
-                </div>
-                <div class="col-6">
-                  <div class="d-flex align-items-center gap-2" style="font-size:var(--font-size-sm);">
-                    <i class="bi bi-shield-check text-primary-custom"></i>
-                    <span>ضمان سنتين</span>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="bi bi-shield-check text-primary fs-5"></i>
+                      </div>
+                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">ضمان سنتين</span>
+                    </div>
                   </div>
-                </div>
-                <div class="col-6">
-                  <div class="d-flex align-items-center gap-2" style="font-size:var(--font-size-sm);">
-                    <i class="bi bi-credit-card text-primary-custom"></i>
-                    <span>دفع آمن</span>
+                  <div class="col-6">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px;">
+                        <i class="bi bi-credit-card text-primary fs-5"></i>
+                      </div>
+                      <span class="fw-semibold text-secondary" style="font-size: 0.95rem;">دفع إلكتروني آمن</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -195,9 +203,12 @@ $count_same_prodects = count($same_prodects);
       </div>
       <?php if ($count_same_prodects > 0) { ?>
       <!-- Related Products -->
-      <div class="mt-5 pt-4" style="border-top:1px solid var(--color-border-light);">
-        <div class="section-header">
-          <h2 class="section-title" style="font-size:var(--font-size-xl);">منتجات ذات صلة</h2>
+      <div class="mt-5 pt-5 border-top border-light">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h2 class="h3 fw-bold mb-0 text-dark">منتجات ذات صلة</h2>
+          <a href="products.php?category=<?php echo htmlspecialchars($category_id); ?>" class="btn btn-outline-primary btn-sm rounded-pill px-4 py-2 fw-semibold shadow-sm transition-base d-flex align-items-center">
+            عرض المزيد <i class="bi bi-arrow-left ms-2"></i>
+          </a>
         </div>
         <div class="row g-4">
           <?php foreach ($same_prodects as $same_prodect) : ?>

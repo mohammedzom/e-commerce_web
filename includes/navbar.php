@@ -1,3 +1,18 @@
+<?php
+$current_url = basename($_SERVER['PHP_SELF']);
+$isHome = '';
+$isProduct = '';
+$isContact = '';
+
+if ($current_url == 'index.php') {
+    $isHome = 'active';
+}elseif ($current_url == 'products.php') {
+    $isProduct = 'active';
+}elseif ($current_url == 'contact.php') {
+    $isContact = 'active';
+}
+
+?>
 <nav class="navbar navbar-expand-lg navbar-custom sticky-top" id="mainNavbar">
     <div class="container">
         <!-- Brand -->
@@ -15,13 +30,13 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto gap-1">
                 <li class="nav-item">
-                    <a class="nav-link active" href="<?php echo APPURL; ?>index.php">الرئيسية</a>
+                    <a class="nav-link <?php echo $isHome; ?>" href="<?php echo APPURL; ?>index.php">الرئيسية</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo APPURL; ?>products.php">المنتجات</a>
+                    <a class="nav-link <?php echo $isProduct; ?>" href="<?php echo APPURL; ?>products.php">المنتجات</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo APPURL; ?>contact.php">تواصل معنا</a>
+                    <a class="nav-link <?php echo $isContact; ?>" href="<?php echo APPURL; ?>contact.php">تواصل معنا</a>
                 </li>
             </ul>
 

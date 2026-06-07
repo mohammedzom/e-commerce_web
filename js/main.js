@@ -42,19 +42,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnMinus = control.querySelector('.qty-minus');
     const btnPlus = control.querySelector('.qty-plus');
 
+    if (!input) return;
+
+    const checkLimits = () => {
+      const val = parseInt(input.value) || 1;
+      const min = parseInt(input.min) || 1;
+      const max = parseInt(input.max) || Infinity;
+
+      if (btnMinus) btnMinus.disabled = (val <= min);
+      if (btnPlus) btnPlus.disabled = (val >= max);
+    };
+
     if (btnMinus) {
       btnMinus.addEventListener('click', () => {
         const val = parseInt(input.value) || 1;
-        if (val > 1) input.value = val - 1;
+        const min = parseInt(input.min) || 1;
+        if (val > min) {
+          input.value = val - 1;
+          checkLimits();
+        }
       });
     }
 
     if (btnPlus) {
       btnPlus.addEventListener('click', () => {
         const val = parseInt(input.value) || 1;
-        input.value = val + 1;
+        const max = parseInt(input.max) || Infinity;
+        if (val < max) {
+          input.value = val + 1;
+          checkLimits();
+        }
       });
     }
+
+    input.addEventListener('input', () => {
+        let val = parseInt(input.value);
+        const min = parseInt(input.min) || 1;
+        const max = parseInt(input.max) || Infinity;
+        
+        if (isNaN(val)) val = min;
+        if (val < min) input.value = min;
+        if (val > max) input.value = max;
+        
+        checkLimits();
+    });
+
+    // Initial check on load
+    checkLimits();
   });
 
 
