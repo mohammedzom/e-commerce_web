@@ -10,210 +10,202 @@ $user->execute(['user_id' => $_SESSION['user_id']]);
 $user = $user->fetch(PDO::FETCH_OBJ);
 
 $months_list_ar = array(
-  "January" => "يناير",
-  "February" => "فبراير",
-  "March" => "مارس",
-  "April" => "أبريل",
-  "May" => "مايو",
-  "June" => "يونيو",
-  "July" => "يوليو",
-  "August" => "أغسطس",
-  "September" => "سبتمبر",
-  "October" => "أكتوبر",
-  "November" => "نوفمبر",
-  "December" => "ديسمبر"
+    "January" => "يناير",
+    "February" => "فبراير",
+    "March" => "مارس",
+    "April" => "أبريل",
+    "May" => "مايو",
+    "June" => "يونيو",
+    "July" => "يوليو",
+    "August" => "أغسطس",
+    "September" => "سبتمبر",
+    "October" => "أكتوبر",
+    "November" => "نوفمبر",
+    "December" => "ديسمبر"
 );
+
+$status_map = [
+    'completed' => [
+        'class' => 'status-completed',
+        'icon' => 'bi-check-circle-fill',
+        'label' => 'مكتمل'
+    ],
+    'pending' => [
+        'class' => 'status-pending',
+        'icon' => 'bi-clock-fill',
+        'label' => 'قيد الانتظار'
+    ],
+    'processing' => [
+        'class' => 'status-processing',
+        'icon' => 'bi-arrow-repeat',
+        'label' => 'قيد المعالجة'
+    ],
+    'shipped' => [
+        'class' => 'status-shipped',
+        'icon' => 'bi-truck',
+        'label' => 'تم الشحن'
+    ],
+    'cancelled' => [
+        'class' => 'status-cancelled',
+        'icon' => 'bi-x-circle-fill',
+        'label' => 'ملغي'
+    ],
+    'delivered' => [
+        'class' => 'status-completed',
+        'icon' => 'bi-check-circle-fill',
+        'label' => 'تم التوصيل'
+    ],
+    'paid' => [
+        'class' => 'status-processing',
+        'icon' => 'bi-credit-card-fill',
+        'label' => 'مدفوع'
+    ],
+];
+$stmt = $conn->prepare("
+    SELECT o.*, COALESCE(items_summary.total_items, 0) AS total_items
+    FROM orders o
+    LEFT JOIN (
+        SELECT order_id, COUNT(*) AS total_items
+        FROM order_items
+        GROUP BY order_id
+    ) items_summary ON items_summary.order_id = o.order_id
+    WHERE o.user_id = :user_id
+    ORDER BY o.order_date DESC
+");
+$stmt->execute(['user_id' => $_SESSION['user_id']]);
+$orders = $stmt->fetchAll(PDO::FETCH_OBJ);
 ?>
 
 <body>
 
-  <?php include 'includes/navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
-  <div class="page-header">
-    <div class="container">
-      <h1>الملف الشخصي</h1>
-      <div class="breadcrumb-custom">
-        <a href="index.php">الرئيسية</a>
-        <span class="separator">/</span>
-        <span>الملف الشخصي</span>
-      </div>
-    </div>
-  </div>
-
-  <section class="section-padding">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-3">
-          <div class="card-custom" style="padding:var(--space-xl);border-radius:var(--radius-xl);">
-            <div class="text-center mb-4">
-              <div class="profile-avatar mx-auto mb-3"><?php echo $user->full_name[0] ?></div>
-              <h5 style="font-weight:700;margin-bottom:2px;"><?php echo $user->full_name ?></h5>
-              <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عميل منذ <?php echo $months_list_ar[date('M', strtotime($user->created_at))] . ' ' . date('Y', strtotime($user->created_at))  ?></p>
+    <div class="page-header">
+        <div class="container">
+            <h1>الملف الشخصي</h1>
+            <div class="breadcrumb-custom">
+                <a href="index.php">الرئيسية</a>
+                <span class="separator">/</span>
+                <span>الملف الشخصي</span>
             </div>
-
-            <ul class="nav flex-column gap-1" id="profileTabs">
-              <li>
-                <a href="<?php echo APPURL; ?>profile.php" class="nav-link d-flex align-items-center gap-2 active" style="color:var(--color-primary);background:var(--color-primary-ultra-light);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
-                  <i class="bi bi-person"></i> البيانات الشخصية
-                </a>
-              </li>
-              <li>
-                <a href="<?php echo APPURL; ?>order_history.php" class="nav-link d-flex align-items-center gap-2" style="color:var(--color-text-secondary);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
-                  <i class="bi bi-bag"></i> سجل الطلبات
-                </a>
-              </li>
-              <li>
-                <a href="#" class="nav-link d-flex align-items-center gap-2" style="color:var(--color-text-secondary);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
-                  <i class="bi bi-lock"></i> تغيير كلمة المرور
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
+    </div>
 
-        <!-- Main Content -->
-        <div class="col-lg-9">
-          <!-- Personal Info Form -->
-          <div class="card-custom" style="padding:var(--space-2xl);border-radius:var(--radius-xl);margin-bottom:var(--space-xl);">
-            <h5 style="font-weight:700;margin-bottom:var(--space-lg);">
-              <i class="bi bi-person-gear ms-2 text-primary-custom"></i>
-              البيانات الشخصية
-            </h5>
-            <form id="profileForm">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label-custom" for="profileFirstName">الاسم الأول</label>
-                  <input type="text" class="form-control form-control-custom" id="profileFirstName" value="محمد">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label-custom" for="profileLastName">اسم العائلة</label>
-                  <input type="text" class="form-control form-control-custom" id="profileLastName" value="أحمد">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label-custom" for="profileEmail">البريد الإلكتروني</label>
-                  <input type="email" class="form-control form-control-custom" id="profileEmail" value="mohammed@mail.com">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label-custom" for="profilePhone">رقم الجوال</label>
-                  <input type="tel" class="form-control form-control-custom" id="profilePhone" value="0500000000">
-                </div>
-                <div class="col-12">
-                  <label class="form-label-custom" for="profileAddress">العنوان</label>
-                  <textarea class="form-control form-control-custom" id="profileAddress" rows="3">الرياض، حي العليا، شارع الملك فهد</textarea>
-                </div>
-                <div class="col-12">
-                  <button type="submit" class="btn btn-primary-custom" id="saveProfileBtn">
-                    <i class="bi bi-check-lg me-2"></i>حفظ التغييرات
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
+    <section class="section-padding">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-3">
+                    <div class="card-custom" style="padding:var(--space-xl);border-radius:var(--radius-xl);">
+                        <div class="text-center mb-4">
+                            <div class="profile-avatar mx-auto mb-3"><?php echo $user->full_name[0] ?></div>
+                            <h5 style="font-weight:700;margin-bottom:2px;"><?php echo $user->full_name ?></h5>
+                            <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عميل منذ <?php echo $months_list_ar[date('M', strtotime($user->created_at))] . ' ' . date('Y', strtotime($user->created_at))  ?></p>
+                        </div>
 
-          <!-- Order History -->
-          <div class="card-custom" style="padding:var(--space-2xl);border-radius:var(--radius-xl);">
-            <h5 style="font-weight:700;margin-bottom:var(--space-lg);">
-              <i class="bi bi-clock-history ms-2 text-primary-custom"></i>
-              سجل الطلبات
-            </h5>
-            <div class="table-responsive">
-              <table class="table table-custom mb-0" id="orderHistoryTable">
-                <thead>
-                  <tr>
-                    <th>رقم الطلب</th>
-                    <th>التاريخ</th>
-                    <th>المنتجات</th>
-                    <th>الإجمالي</th>
-                    <th>الحالة</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>#ORD-1045</strong></td>
-                    <td>15 مايو 2026</td>
-                    <td>3 منتجات</td>
-                    <td>1,375.40 ر.س</td>
-                    <td><span class="status-badge status-completed"><i class="bi bi-check-circle-fill"></i> مكتمل</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>#ORD-1032</strong></td>
-                    <td>8 مايو 2026</td>
-                    <td>1 منتج</td>
-                    <td>299 ر.س</td>
-                    <td><span class="status-badge status-processing"><i class="bi bi-arrow-repeat"></i> قيد التوصيل</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>#ORD-1018</strong></td>
-                    <td>28 أبريل 2026</td>
-                    <td>2 منتج</td>
-                    <td>548 ر.س</td>
-                    <td><span class="status-badge status-completed"><i class="bi bi-check-circle-fill"></i> مكتمل</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>#ORD-0998</strong></td>
-                    <td>15 أبريل 2026</td>
-                    <td>1 منتج</td>
-                    <td>199 ر.س</td>
-                    <td><span class="status-badge status-cancelled"><i class="bi bi-x-circle-fill"></i> ملغي</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>#ORD-0980</strong></td>
-                    <td>3 أبريل 2026</td>
-                    <td>4 منتجات</td>
-                    <td>1,820 ر.س</td>
-                    <td><span class="status-badge status-completed"><i class="bi bi-check-circle-fill"></i> مكتمل</span></td>
-                  </tr>
-                </tbody>
-              </table>
+                        <ul class="nav flex-column gap-1" id="profileTabs">
+                            <li>
+                                <a href="<?php echo APPURL; ?>profile.php" class="nav-link d-flex align-items-center gap-2 active" style="color:var(--color-primary);background:var(--color-primary-ultra-light);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
+                                    <i class="bi bi-person"></i> البيانات الشخصية
+                                </a>
+                            </li>
+                            <li>
+                                <a href="<?php echo APPURL; ?>order_history.php" class="nav-link d-flex align-items-center gap-2" style="color:var(--color-text-secondary);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
+                                    <i class="bi bi-bag"></i> سجل الطلبات
+                                </a>
+                            </li>
+                            <li>
+                                <a href="<?php echo APPURL; ?>change_password.php" class="nav-link d-flex align-items-center gap-2" style="color:var(--color-text-secondary);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
+                                    <i class="bi bi-lock"></i> تغيير كلمة المرور
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-9">
+                    <div class="card-custom" style="padding:var(--space-2xl);border-radius:var(--radius-xl);margin-bottom:var(--space-xl);">
+                        <h5 style="font-weight:700;margin-bottom:var(--space-lg);">
+                            <i class="bi bi-person-gear ms-2 text-primary-custom"></i>
+                            البيانات الشخصية
+                        </h5>
+                        <form method="post" action="<?php echo APPURL; ?>actions/update_profile.php">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label-custom" for="profileFirstName">الاسم</label>
+                                    <input type="text" class="form-control form-control-custom" id="profileFirstName" name="name" value="<?php echo $user->full_name; ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom" for="profileEmail">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control form-control-custom" id="profileEmail" name="email" value="<?php echo $user->email; ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom" for="profilePhone">رقم الجوال</label>
+                                    <input type="tel" class="form-control form-control-custom" id="profilePhone" name="phone" value="<?php echo $user->phone; ?>">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label-custom" for="profileAddress">العنوان</label>
+                                    <textarea class="form-control form-control-custom" id="profileAddress" name="address" rows="3"><?php echo $user->address; ?></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" name="update_profile" class="btn btn-primary-custom">
+                                        <i class="bi bi-check-lg me-2"></i>حفظ التغييرات
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card-custom" style="padding:var(--space-2xl);border-radius:var(--radius-xl);">
+                        <h5 style="font-weight:700;margin-bottom:var(--space-lg);">
+                            <i class="bi bi-clock-history ms-2 text-primary-custom"></i>
+                            سجل الطلبات
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-custom mb-0" id="orderHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الطلب</th>
+                                        <th>التاريخ</th>
+                                        <th>المنتجات</th>
+                                        <th>الإجمالي</th>
+                                        <th>الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <?php if (count($orders) === 0): ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4">لا توجد طلبات سابقة.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                    <?php foreach ($orders as $order) : ?>
+                                        <?php
+                                        $order_status = strtolower((string) $order->status);
+                                        $status = $status_map[$order_status] ?? [
+                                            'class' => 'status-processing',
+                                            'icon' => 'bi-info-circle-fill',
+                                            'label' => $order->status
+                                        ];
+                                        ?>
+                                        <tr>
+                                            <td><strong>#ORD-<?php echo $order->order_id ?></strong></td>
+                                            <td><?php echo date('Y-m-d', strtotime($order->order_date)) ?></td>
+                                            <td><?php echo (int) $order->total_items ?> منتجات</td>
+                                            <td><?php echo number_format((float) $order->total_amount, 2) ?> ش</td>
+                                            <td>
+                                                <span class="status-badge <?php echo $status['class']; ?>">
+                                                    <i class="bi <?php echo $status['icon']; ?>"></i>
+                                                    <?php echo htmlspecialchars($status['label'], ENT_QUOTES, 'UTF-8'); ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-4">
-          <div class="footer-brand"><i class="bi bi-bag-heart"></i> متجر<span>نا</span></div>
-          <p class="footer-text">متجرنا هو وجهتك الأولى للتسوق الإلكتروني. نوفر لك تجربة تسوق سهلة وممتعة مع أفضل المنتجات وأسرع خدمة شحن.</p>
-        </div>
-        <div class="col-6 col-lg-2">
-          <h6 class="footer-heading">روابط سريعة</h6>
-          <ul class="footer-links">
-            <li><a href="index.php">الرئيسية</a></li>
-            <li><a href="products.php">المنتجات</a></li>
-            <li><a href="cart.php">سلة المشتريات</a></li>
-            <li><a href="contact.php">تواصل معنا</a></li>
-          </ul>
-        </div>
-        <div class="col-6 col-lg-2">
-          <h6 class="footer-heading">حسابي</h6>
-          <ul class="footer-links">
-            <li><a href="auth/login.php">تسجيل الدخول</a></li>
-            <li><a href="auth/register.php">إنشاء حساب</a></li>
-            <li><a href="profile.php">الملف الشخصي</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-4">
-          <h6 class="footer-heading">تواصل معنا</h6>
-          <ul class="footer-links">
-            <li><i class="bi bi-geo-alt ms-2 text-primary-custom"></i>الرياض، المملكة العربية السعودية</li>
-            <li><i class="bi bi-telephone ms-2 text-primary-custom"></i><span dir="ltr">+966 50 000 0000</span></li>
-            <li><i class="bi bi-envelope ms-2 text-primary-custom"></i>info@matjarna.com</li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p class="mb-0">© 2026 متجرنا. جميع الحقوق محفوظة.</p>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/main.js"></script>
-</body>
-
-</html>
+    </section>
+    <?php include "includes/footer.php"; ?>

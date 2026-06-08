@@ -1,6 +1,6 @@
 <?php
-require "config/config.php";
-require "includes/middleware/check-login.php";
+require "../config/config.php";
+require "../includes/middleware/check-login.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
@@ -20,10 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $total += $item->price * $item->quantity;
     }
 
-    // Add tax if needed, currently 1% tax in cart.php
     $total += $total * 0.01;
 
-    // Get user address
     $user_stmt = $conn->prepare("SELECT address FROM users WHERE user_id = :user_id");
     $user_stmt->execute(['user_id' => $user_id]);
     $user = $user_stmt->fetch(PDO::FETCH_OBJ);
@@ -32,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $conn->beginTransaction();
 
-        // 2. Insert into orders
         $order_stmt = $conn->prepare("INSERT INTO orders (user_id, total_amount, shipping_address) VALUES (:user_id, :total, :address)");
         $order_stmt->execute([
             'user_id' => $user_id,
@@ -41,10 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         $order_id = $conn->lastInsertId();
 
-        // 3. Insert each cart item into order_items
         $order_item_stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (:order_id, :product_id, :qty, :price)");
 
-        // Update stock quantity
         $update_stock = $conn->prepare("UPDATE products SET stock_quantity = stock_quantity - :qty WHERE product_id = :product_id");
 
         foreach ($items as $item) {
@@ -61,12 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         }
 
-        // 4. Delete all cart items for this user
         $conn->prepare("DELETE FROM cart_items WHERE user_id = :user_id")->execute(['user_id' => $user_id]);
 
         $conn->commit();
-
-        // 5. Redirect to order confirmation / history
         echo "<script>alert('تم تأكيد الطلب بنجاح!'); window.location.href = '" . APPURL . "order_history.php';</script>";
         exit;
     } catch (PDOException $e) {

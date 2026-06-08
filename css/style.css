@@ -735,6 +735,7 @@ ul {
   border-radius: var(--radius-xl);
   font-size: var(--font-size-xs);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .status-pending {
@@ -750,6 +751,11 @@ ul {
 .status-completed {
   background-color: var(--color-success-light);
   color: #2E7D32;
+}
+
+.status-shipped {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-hover);
 }
 
 .status-cancelled {
