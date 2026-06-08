@@ -1,39 +1,34 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="الملف الشخصي — تعديل بياناتك وعرض سجل طلباتك في متجرنا.">
-  <title>متجرنا — الملف الشخصي</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="css/style.css">
-</head>
+<?php
+$page_description = 'الملف الشخصي — تعديل بياناتك وعرض سجل طلباتك في متجرنا.';
+$page_title = 'متجرنا — الملف الشخصي';
+require_once 'config/config.php';
+require_once 'includes/middleware/check-login.php';
+include 'includes/header.php';
+
+$user = $conn->prepare("SELECT * FROM users WHERE user_id = :user_id");
+$user->execute(['user_id' => $_SESSION['user_id']]);
+$user = $user->fetch(PDO::FETCH_OBJ);
+
+$months_list_ar = array(
+  "January" => "يناير",
+  "February" => "فبراير",
+  "March" => "مارس",
+  "April" => "أبريل",
+  "May" => "مايو",
+  "June" => "يونيو",
+  "July" => "يوليو",
+  "August" => "أغسطس",
+  "September" => "سبتمبر",
+  "October" => "أكتوبر",
+  "November" => "نوفمبر",
+  "December" => "ديسمبر"
+);
+?>
+
 <body>
 
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-custom sticky-top" id="mainNavbar">
-    <div class="container">
-      <a class="navbar-brand" href="index.php"><i class="bi bi-bag-heart"></i> متجر<span>نا</span></a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mx-auto gap-1">
-          <li class="nav-item"><a class="nav-link" href="index.php">الرئيسية</a></li>
-          <li class="nav-item"><a class="nav-link" href="products.php">المنتجات</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.php">تواصل معنا</a></li>
-        </ul>
-        <div class="nav-actions">
-          <a href="cart.php" class="nav-icon-btn" title="سلة المشتريات"><i class="bi bi-bag"></i><span class="badge-dot"></span></a>
-          <a href="profile.php" class="nav-icon-btn" title="حسابي" style="background:var(--color-primary-ultra-light);color:var(--color-primary);"><i class="bi bi-person"></i></a>
-          <a href="#" class="btn btn-outline-custom btn-sm-custom" id="logoutBtn">
-            <i class="bi bi-box-arrow-right me-1"></i>خروج
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <?php include 'includes/navbar.php'; ?>
 
-  <!-- PAGE HEADER -->
   <div class="page-header">
     <div class="container">
       <h1>الملف الشخصي</h1>
@@ -45,29 +40,25 @@
     </div>
   </div>
 
-  <!-- PROFILE CONTENT -->
   <section class="section-padding">
     <div class="container">
       <div class="row g-4">
-        <!-- Sidebar -->
         <div class="col-lg-3">
           <div class="card-custom" style="padding:var(--space-xl);border-radius:var(--radius-xl);">
-            <!-- Profile Header -->
             <div class="text-center mb-4">
-              <div class="profile-avatar mx-auto mb-3">م</div>
-              <h5 style="font-weight:700;margin-bottom:2px;">محمد أحمد</h5>
-              <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عميل منذ يناير 2026</p>
+              <div class="profile-avatar mx-auto mb-3"><?php echo $user->full_name[0] ?></div>
+              <h5 style="font-weight:700;margin-bottom:2px;"><?php echo $user->full_name ?></h5>
+              <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عميل منذ <?php echo $months_list_ar[date('M', strtotime($user->created_at))] . ' ' . date('Y', strtotime($user->created_at))  ?></p>
             </div>
 
-            <!-- Nav -->
             <ul class="nav flex-column gap-1" id="profileTabs">
               <li>
-                <a href="#" class="nav-link d-flex align-items-center gap-2 active" style="color:var(--color-primary);background:var(--color-primary-ultra-light);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
+                <a href="<?php echo APPURL; ?>profile.php" class="nav-link d-flex align-items-center gap-2 active" style="color:var(--color-primary);background:var(--color-primary-ultra-light);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
                   <i class="bi bi-person"></i> البيانات الشخصية
                 </a>
               </li>
               <li>
-                <a href="#" class="nav-link d-flex align-items-center gap-2" style="color:var(--color-text-secondary);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
+                <a href="<?php echo APPURL; ?>order_history.php" class="nav-link d-flex align-items-center gap-2" style="color:var(--color-text-secondary);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:var(--font-size-sm);font-weight:500;">
                   <i class="bi bi-bag"></i> سجل الطلبات
                 </a>
               </li>
@@ -215,11 +206,14 @@
           </ul>
         </div>
       </div>
-      <div class="footer-bottom"><p class="mb-0">© 2026 متجرنا. جميع الحقوق محفوظة.</p></div>
+      <div class="footer-bottom">
+        <p class="mb-0">© 2026 متجرنا. جميع الحقوق محفوظة.</p>
+      </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
 </body>
+
 </html>

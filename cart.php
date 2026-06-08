@@ -59,45 +59,45 @@ foreach ($cart_items as $cart_item) {
                 </tr>
               </thead>
               <tbody>
-                <?php if(count($cart_items) == 0) { ?>
+                <?php if (count($cart_items) == 0) { ?>
                   <tr>
                     <td colspan="5" class="text-center">لا توجد منتجات في السلة</td>
                   </tr>
                 <?php } ?>
-                <?php foreach($cart_items as $cart_item): 
+                <?php foreach ($cart_items as $cart_item):
                   $product = $conn->prepare("SELECT * FROM products WHERE product_id = :product_id");
                   $product->execute(['product_id' => $cart_item->product_id]);
                   $product = $product->fetch(PDO::FETCH_OBJ);
-                  ?>
-                  
-                <tr>
-                  <td>
-                    <div class="d-flex align-items-center gap-3">
-                      <div style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg-alt);flex-shrink:0;">
-                        <img src="<?php echo $product->image_url ?>" alt="<?php echo $product->name ?>" style="width:100%;height:100%;object-fit:cover;">
-                      </div>
-                      <div>
-                        <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;"><?php echo $product->name ?></h6>
-                        <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);"><?php echo $product->category_id ?></span>
-                      </div>
-                    </div>
-                  </td>
-                  <td style="white-space:nowrap;"><?php echo $product->price ?> ش</td>
-                  <form action="<?php echo APPURL; ?>actions/update_cart.php" method="POST">
-                  <td>
-                    <div class="quantity-control">
-                      <button class="qty-minus" type="button">−</button>
-                      <input type="number" value="<?php echo $cart_item->quantity ?>" min="1" max="<?php echo $product->stock_quantity ?>" name="new_quantity">
-                      <button class="qty-plus" type="button">+</button>
-                    </div>
-                  </td>
-                  <td style="white-space:nowrap;font-weight:600;"><?php echo $product->price * $cart_item->quantity ?> ش</td>
-                  <td style="display: flex; flex-direction: column; gap: 10px;">
+                ?>
 
-                      <input type="hidden" name="cart_id" value="<?php echo $cart_item->cart_id ?>">
-                      <button type="submit" name="apply-from-cart" class="btn btn-success-soft btn-remove-item" title="تطبيق">
-                        <i class="bi bi-check"></i>
-                      </button>
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <div style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg-alt);flex-shrink:0;">
+                          <img src="<?php echo $product->image_url ?>" alt="<?php echo $product->name ?>" style="width:100%;height:100%;object-fit:cover;">
+                        </div>
+                        <div>
+                          <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;"><?php echo $product->name ?></h6>
+                          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);"><?php echo $product->category_id ?></span>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="white-space:nowrap;"><?php echo $product->price ?> ش</td>
+                    <form action="<?php echo APPURL; ?>actions/update_cart.php" method="POST">
+                      <td>
+                        <div class="quantity-control">
+                          <button class="qty-minus" type="button">−</button>
+                          <input type="number" value="<?php echo $cart_item->quantity ?>" min="1" max="<?php echo $product->stock_quantity ?>" name="new_quantity">
+                          <button class="qty-plus" type="button">+</button>
+                        </div>
+                      </td>
+                      <td style="white-space:nowrap;font-weight:600;"><?php echo $product->price * $cart_item->quantity ?> ش</td>
+                      <td style="display: flex; flex-direction: column; gap: 10px;">
+
+                        <input type="hidden" name="cart_id" value="<?php echo $cart_item->cart_id ?>">
+                        <button type="submit" name="apply-from-cart" class="btn btn-success-soft btn-remove-item" title="تطبيق">
+                          <i class="bi bi-check"></i>
+                        </button>
                     </form>
 
                     <form action="<?php echo APPURL; ?>actions/remove_from_cart.php" method="POST">
@@ -106,8 +106,8 @@ foreach ($cart_items as $cart_item) {
                         <i class="bi bi-trash3"></i>
                       </button>
                     </form>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
                 <?php endforeach ?>
               </tbody>
             </table>
@@ -142,15 +142,15 @@ foreach ($cart_items as $cart_item) {
             </div>
 
 
-            <form action="checkout.php" method="POST">
+            <form action="actions/checkout.php" method="POST">
               <button class="btn btn-primary-custom w-100 mt-4" id="checkoutBtn">
-              <i class="bi bi-lock me-2"></i>
-              إتمام الطلب
-            </button>
+                <i class="bi bi-lock me-2"></i>
+                إتمام الطلب
+              </button>
             </form>
           </div>
         </div>
       </div>
     </div>
   </section>
-<?php include 'includes/footer.php' ?>
+  <?php include 'includes/footer.php' ?>

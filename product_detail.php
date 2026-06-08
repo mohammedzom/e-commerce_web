@@ -7,7 +7,7 @@ include 'includes/header.php';
 
 
 
-$id = $_GET['id'] ;
+$id = $_GET['id'];
 if (!$id) {
   header('Location: errors/404.php');
   exit;
@@ -68,14 +68,14 @@ $count_same_prodects = count($same_prodects);
             <img src="<?php echo htmlspecialchars($image_url) ?>" alt="<?php echo htmlspecialchars($name) ?>" id="mainProductImage" class="img-fluid rounded-3" style="max-height: 500px; object-fit: contain;">
           </div>
         </div>
-         
+
         <div class="col-lg-6">
           <div class="product-info animate-fadeInUp delay-2">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <div class="product-category-label px-3 py-1 bg-primary-light text-primary-custom rounded-pill d-inline-block fw-bold"><?php echo htmlspecialchars($category_name) ?></div>
             </div>
             <h1 class="fw-bold mb-3" style="color: var(--color-text); font-size: 2.2rem;"><?php echo htmlspecialchars($name) ?></h1>
-            
+
             <div class="product-detail-price mb-4" style="font-size: 2.2rem; color: var(--color-primary); font-weight: 800;"><?php echo htmlspecialchars($price) ?> <span class="fs-5 text-muted fw-normal">شيكل</span></div>
 
             <p class="product-description text-secondary fs-6 mb-4" style="line-height: 1.8;">
@@ -99,45 +99,49 @@ $count_same_prodects = count($same_prodects);
                 <div class="quantity-control">
                   <button class="qty-minus" name="remove" type="button">−</button>
                   <input type="number" value="1" min="1" name="quantity" id="productQuantity" max="<?php echo $stock_quantity ?>">
-                  <button class="qty-plus" name="add" type="button" <?php if($stock_quantity <= 1){ echo 'disabled'; } ?>>+</button>
+                  <button class="qty-plus" name="add" type="button" <?php if ($stock_quantity <= 1) {
+                                                                      echo 'disabled';
+                                                                    } ?>>+</button>
                 </div>
-                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold d-flex align-items-center justify-content-center flex-grow-1" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%); border: none; box-shadow: 0 4px 12px rgba(106, 173, 207, 0.25); height: 48px; border-radius: var(--radius-md);" id="addToCartBtn" <?php if($stock_quantity <= 0){ echo 'disabled'; } ?>>
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold d-flex align-items-center justify-content-center flex-grow-1" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%); border: none; box-shadow: 0 4px 12px rgba(106, 173, 207, 0.25); height: 48px; border-radius: var(--radius-md);" id="addToCartBtn" <?php if ($stock_quantity <= 0) {
+                                                                                                                                                                                                                                                                                                                                                                                        echo 'disabled';
+                                                                                                                                                                                                                                                                                                                                                                                      } ?>>
                   <i class="bi bi-bag-plus fs-5 ms-2"></i>
                   إضافة للسلة
                 </button>
                 <input type="hidden" name="product_id" value="<?php echo htmlspecialchars($product->product_id) ?>">
-                <input type="hidden" name="add-to-cart" value="1">
+                <input type="hidden" name="add_to_cart" value="1">
               </div>
             </form>
           </div>
         </div>
       </div>
       <?php if ($count_same_prodects > 0) { ?>
-      <!-- Related Products -->
-      <div class="mt-5 pt-5 border-top border-light">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-          <h2 class="h3 fw-bold mb-0 text-dark">منتجات ذات صلة</h2>
-          <a href="products.php?category=<?php echo htmlspecialchars($category_id); ?>" class="btn btn-outline-primary btn-sm rounded-pill px-4 py-2 fw-semibold shadow-sm transition-base d-flex align-items-center">
-            عرض المزيد <i class="bi bi-arrow-left ms-2"></i>
-          </a>
-        </div>
-        <div class="row g-4">
-          <?php foreach ($same_prodects as $same_prodect) : ?>
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card-custom product-card">
-              <div class="product-img-wrapper">
-                <img src="<?php echo $same_prodect->image_url ?>" alt="<?php echo $same_prodect->name ?>">
-              </div>
-              <div class="card-body">
-                <div class="product-category"><?php echo $category_name ?></div>
-                <h6 class="product-title"><a href="product_detail.php?id=<?php echo $same_prodect->product_id ?>"><?php echo $same_prodect->name ?></a></h6>
-                <div class="product-price"><?php echo $same_prodect->price ?> ش</div>
-              </div>
-            </div>
+        <!-- Related Products -->
+        <div class="mt-5 pt-5 border-top border-light">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="h3 fw-bold mb-0 text-dark">منتجات ذات صلة</h2>
+            <a href="products.php?category=<?php echo htmlspecialchars($category_id); ?>" class="btn btn-outline-primary btn-sm rounded-pill px-4 py-2 fw-semibold shadow-sm transition-base d-flex align-items-center">
+              عرض المزيد <i class="bi bi-arrow-left ms-2"></i>
+            </a>
           </div>
-          <?php endforeach; ?>
+          <div class="row g-4">
+            <?php foreach ($same_prodects as $same_prodect) : ?>
+              <div class="col-6 col-md-4 col-lg-3">
+                <div class="card-custom product-card">
+                  <div class="product-img-wrapper">
+                    <img src="<?php echo $same_prodect->image_url ?>" alt="<?php echo $same_prodect->name ?>">
+                  </div>
+                  <div class="card-body">
+                    <div class="product-category"><?php echo $category_name ?></div>
+                    <h6 class="product-title"><a href="product_detail.php?id=<?php echo $same_prodect->product_id ?>"><?php echo $same_prodect->name ?></a></h6>
+                    <div class="product-price"><?php echo $same_prodect->price ?> ش</div>
+                  </div>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
         </div>
-      </div>
       <?php } ?>
     </div>
   </section>

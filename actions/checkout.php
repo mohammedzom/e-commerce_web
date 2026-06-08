@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // 3. Insert each cart item into order_items
         $order_item_stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (:order_id, :product_id, :qty, :price)");
-        
+
         // Update stock quantity
         $update_stock = $conn->prepare("UPDATE products SET stock_quantity = stock_quantity - :qty WHERE product_id = :product_id");
 
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'qty' => $item->quantity,
                 'price' => $item->price
             ]);
-            
+
             $update_stock->execute([
                 'qty' => $item->quantity,
                 'product_id' => $item->product_id
@@ -65,9 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->prepare("DELETE FROM cart_items WHERE user_id = :user_id")->execute(['user_id' => $user_id]);
 
         $conn->commit();
-        
+
         // 5. Redirect to order confirmation / history
-        echo "<script>alert('تم تأكيد الطلب بنجاح!'); window.location.href = '" . APPURL . "actions/order_history.php';</script>";
+        echo "<script>alert('تم تأكيد الطلب بنجاح!'); window.location.href = '" . APPURL . "order_history.php';</script>";
         exit;
     } catch (PDOException $e) {
         $conn->rollBack();
