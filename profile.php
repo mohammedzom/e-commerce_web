@@ -201,8 +201,8 @@
         <div class="col-6 col-lg-2">
           <h6 class="footer-heading">حسابي</h6>
           <ul class="footer-links">
-            <li><a href="login.php">تسجيل الدخول</a></li>
-            <li><a href="register.php">إنشاء حساب</a></li>
+            <li><a href="auth/login.php">تسجيل الدخول</a></li>
+            <li><a href="auth/register.php">إنشاء حساب</a></li>
             <li><a href="profile.php">الملف الشخصي</a></li>
           </ul>
         </div>

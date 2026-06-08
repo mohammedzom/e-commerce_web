@@ -16,12 +16,12 @@
             <div class="col-6 col-lg-2">
                 <h6 class="footer-heading">روابط سريعة</h6>
                 <ul class="footer-links">
-                    <li><a href="<?= APPURL ?>/index.php">الرئيسية</a></li>
-                    <li><a href="<?= APPURL ?>/products.php">المنتجات</a></li>
+                    <li><a href="<?= APPURL ?>index.php">الرئيسية</a></li>
+                    <li><a href="<?= APPURL ?>products.php">المنتجات</a></li>
                     <?php if(isset($_SESSION['user_id'])): ?>
-                    <li><a href="<?= APPURL ?>/cart.php">سلة المشتريات</a></li>
+                    <li><a href="<?= APPURL ?>cart.php">سلة المشتريات</a></li>
                     <?php endif; ?>
-                    <li><a href="<?= APPURL ?>/contact.php">تواصل معنا</a></li>
+                    <li><a href="<?= APPURL ?>contact.php">تواصل معنا</a></li>
                 </ul>
             </div>
 
@@ -67,7 +67,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?php echo APPURL . '/js/main.js?v=' . time(); ?>"></script>
+<script src="<?php echo APPURL . 'js/main.js?v=' . time(); ?>"></script>
 
 </body>
 

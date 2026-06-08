@@ -1,5 +1,4 @@
 <?php
-require "config/variables.php";
 require "config/config.php";
 require "includes/middleware/check-login.php";
 
@@ -68,11 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->commit();
         
         // 5. Redirect to order confirmation / history
-        echo "<script>alert('تم تأكيد الطلب بنجاح!'); window.location.href = 'order_history.php';</script>";
+        echo "<script>alert('تم تأكيد الطلب بنجاح!'); window.location.href = '" . APPURL . "actions/order_history.php';</script>";
         exit;
     } catch (PDOException $e) {
         $conn->rollBack();
-        echo "<script>alert('حدث خطأ أثناء معالجة الطلب'); window.location.href = 'cart.php';</script>";
+        echo "<script>alert('حدث خطأ أثناء معالجة الطلب'); window.location.href = '" . APPURL . "cart.php';</script>";
         exit;
     }
 } else {

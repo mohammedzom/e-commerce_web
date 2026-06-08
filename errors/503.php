@@ -1,6 +1,6 @@
 <?php
 http_response_code(503);
-define("APPURL", "http://localhost/E-Commerce/");
+require_once __DIR__ . '/../config/variables.php';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">

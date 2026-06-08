@@ -2,8 +2,8 @@
 $page_description = "إنشاء حساب جديد في متجرنا — ابدأ رحلة تسوقك الآن.";
 $page_title = "إنشاء حساب";
 $error = "";
-include "includes/header.php";
-require "config/config.php";
+include __DIR__ . "/../includes/header.php";
+require __DIR__ . "/../config/config.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (empty($_POST['first_name']) || empty($_POST['last_name']) || empty($_POST['email']) || empty($_POST['phone']) || empty($_POST['password']) || empty($_POST['confirm_password'])) {
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="auth-wrapper">
     <div class="auth-card animate-fadeInUp" style="max-width:480px;">
       <div class="auth-logo">
-        <a href="index.php" style="color:inherit;">
+        <a href="<?php echo APPURL; ?>index.php" style="color:inherit;">
           <h2><i class="bi bi-bag-heart"></i> متجر<span>نا</span></h2>
         </a>
         <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">أنشئ حسابك الجديد وابدأ التسوق</p>
@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </form>
 
       <p class="text-center mb-0" style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">
-        لديك حساب بالفعل؟ <a href="<?php echo APPURL; ?>login.php" style="font-weight:600;">تسجيل الدخول</a>
+        لديك حساب بالفعل؟ <a href="<?php echo APPURL; ?>auth/login.php" style="font-weight:600;">تسجيل الدخول</a>
       </p>
     </div>
   </div>

@@ -1,7 +1,11 @@
 <?php
 http_response_code(403);
-define("APPURL", "http://localhost/E-Commerce/");
-require_once '../includes/handlers/auth-handler.php';
+require_once __DIR__ . '/../config/variables.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+
+function checkLogin() {
+    return isset($_SESSION['user_id']);
+}
 
 ?>
 <!DOCTYPE html>

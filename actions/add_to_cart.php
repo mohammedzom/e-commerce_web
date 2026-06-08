@@ -1,7 +1,6 @@
 <?php
-require "config/variables.php";
-require "config/config.php";
-require "includes/middleware/check-login.php";
+require __DIR__ . "/../config/config.php";
+require __DIR__ . "/../includes/middleware/check-login.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['product_id'])) {
     $product_id = isset($_POST['product_id']) ? $_POST['product_id'] : $_GET['product_id'];
@@ -9,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['product_id'])) {
     $user_id = $_SESSION['user_id'];
 
     if (!$product_id) {
-        header('Location: index.php');
+        header('Location: ' . APPURL . 'index.php');
         exit;
     }
 
@@ -34,16 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['product_id'])) {
         $conn->prepare("UPDATE cart_items SET quantity = :qty WHERE user_id = :user_id AND product_id = :product_id")
              ->execute(['qty' => $new_qty, 'user_id' => $user_id, 'product_id' => $product_id]);
              
-        echo "<script>alert('تم تحديث الكمية في السلة'); window.location.href = 'cart.php';</script>";
+        echo "<script>alert('تم تحديث الكمية في السلة'); window.location.href = '" . APPURL . "cart.php';</script>";
         exit;
     } else {
         $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)")
              ->execute(['user_id' => $user_id, 'product_id' => $product_id, 'quantity' => $quantity]);
 
-        echo "<script>alert('تمت الإضافة إلى السلة'); window.location.href = 'cart.php';</script>";
+        echo "<script>alert('تمت الإضافة إلى السلة'); window.location.href = '" . APPURL . "cart.php';</script>";
         exit;
     }
 } else {
-    header('Location: index.php');
+    header('Location: ' . APPURL . 'index.php');
     exit;
 }

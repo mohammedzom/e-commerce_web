@@ -1,9 +1,9 @@
 <?php
 $page_title = 'متجرنا — سجل الطلبات';
 $page_description = 'سجل الطلبات الخاصة بك.';
-include 'includes/header.php';
-require 'config/config.php';
-require 'includes/middleware/check-login.php';
+require __DIR__ . '/../config/config.php';
+require __DIR__ . '/../includes/middleware/check-login.php';
+include __DIR__ . '/../includes/header.php';
 
 $user_id = $_SESSION['user_id'];
 $orders = $conn->prepare("SELECT * FROM orders WHERE user_id = :user_id ORDER BY order_date DESC");
@@ -12,7 +12,7 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
 ?>
 
 <body>
-  <?php include 'includes/navbar.php'; ?>
+  <?php include __DIR__ . '/../includes/navbar.php'; ?>
   <div class="page-header">
     <div class="container">
       <h1>سجل الطلبات</h1>
@@ -59,6 +59,6 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
     </div>
   </section>
 
-  <?php include 'includes/footer.php'; ?>
+  <?php include __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>

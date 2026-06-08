@@ -56,7 +56,7 @@ include 'includes/header.php';
           </a>
         </li>
         <li class="nav-item" style="margin-top:auto;">
-          <a href="login.php" class="nav-link" style="color:var(--color-danger);">
+          <a href="<?php echo APPURL; ?>auth/logout.php" class="nav-link" style="color:var(--color-danger);">
             <i class="bi bi-box-arrow-right"></i> تسجيل الخروج
           </a>
         </li>

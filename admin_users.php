@@ -29,7 +29,7 @@
         <li class="nav-label" style="margin-top:var(--space-lg);">إعدادات</li>
         <li class="nav-item"><a href="admin_settings.php" class="nav-link"><i class="bi bi-gear"></i> إعدادات الموقع</a></li>
         <li class="nav-item"><a href="index.php" class="nav-link"><i class="bi bi-house"></i> عرض الموقع</a></li>
-        <li class="nav-item"><a href="login.php" class="nav-link" style="color:var(--color-danger);"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
+        <li class="nav-item"><a href="auth/logout.php" class="nav-link" style="color:var(--color-danger);"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
       </ul>
     </aside>
 

@@ -1,5 +1,5 @@
 <?php
-require "config/variables.php";
+require __DIR__ . "/../config/variables.php";
 session_start();
 session_unset();
 session_destroy();

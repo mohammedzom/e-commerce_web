@@ -58,18 +58,18 @@ if ($current_url == 'index.php') {
                 <?php } else { ?>
                     <ul class="navbar-nav ms-auto gap-1">
                         <li class="nav-item">
-                            <a href="<?php echo APPURL; ?>/cart.php" class="nav-icon-btn" title="سلة المشتريات">
+                            <a href="<?php echo APPURL; ?>cart.php" class="nav-icon-btn" title="سلة المشتريات">
                                 <i class="bi bi-bag"></i>
                                 <span class="badge-dot"></span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?php echo APPURL; ?>/profile.php" class="nav-icon-btn" title="حسابي">
+                            <a href="<?php echo APPURL; ?>profile.php" class="nav-icon-btn" title="حسابي">
                                 <i class="bi bi-person"></i>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="<?php echo APPURL; ?>/logout.php">
+                            <a class="nav-link active" href="<?php echo APPURL; ?>auth/logout.php">
                                 <i class="bi bi-box-arrow-in-right"></i>
                                 تسجيل الخروج
                             </a>

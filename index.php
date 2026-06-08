@@ -104,7 +104,7 @@ foreach ($categories as $category) {
                     <div class="product-price"><?php echo $product->price ?> ش</div>
                   </li>
                   <li>
-                    <form method="POST" action="add_to_cart.php">
+                    <form method="POST" action="<?php echo APPURL; ?>actions/add_to_cart.php">
                       <input type="hidden" name="product_id" value="<?php echo $product->product_id ?>">
                       <button type="submit" name="add-to-cart" class="btn btn-primary btn-sm" title="أضف للسلة" style="padding: 6px 12px;"> 
                         <i class="bi bi-cart"></i> إضافة للسلة 

@@ -1,9 +1,10 @@
 <?php
 $page_title = 'متجرنا — سلة المشتريات';
 $page_description = 'سلة المشتريات — راجع منتجاتك وأكمل عملية الشراء بسهولة.';
+require_once 'config/config.php';
+require_once 'includes/middleware/check-login.php';
 include 'includes/header.php';
-require 'config/config.php';
-require 'includes/middleware/check-login.php';
+
 
 $user_id = $_SESSION['user_id'];
 $cart_items = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id");
@@ -77,12 +78,12 @@ foreach ($cart_items as $cart_item) {
                       </div>
                       <div>
                         <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;"><?php echo $product->name ?></h6>
-                        <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);"><?php echo $cart_item->category_id ?></span>
+                        <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);"><?php echo $product->category_id ?></span>
                       </div>
                     </div>
                   </td>
                   <td style="white-space:nowrap;"><?php echo $product->price ?> ش</td>
-                  <form action="update_cart.php" method="POST">
+                  <form action="<?php echo APPURL; ?>actions/update_cart.php" method="POST">
                   <td>
                     <div class="quantity-control">
                       <button class="qty-minus" type="button">−</button>
@@ -99,7 +100,7 @@ foreach ($cart_items as $cart_item) {
                       </button>
                     </form>
 
-                    <form action="remove_from_cart.php" method="POST">
+                    <form action="<?php echo APPURL; ?>actions/remove_from_cart.php" method="POST">
                       <input type="hidden" name="cart_item_id" value="<?php echo $cart_item->cart_id ?>">
                       <button type="submit" name="remove-from-cart" class="btn btn-danger-soft btn-remove-item" title="حذف">
                         <i class="bi bi-trash3"></i>

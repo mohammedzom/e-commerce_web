@@ -159,7 +159,7 @@ $products = $conn->query("SELECT * FROM products")->fetchAll(PDO::FETCH_OBJ);
                   <td>
                     <div class="d-flex gap-1">
                       <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                      <form action="products.php" method="POST">
+                      <form action="admin_products.php" method="POST">
                         <input type="hidden" name="prod_id" value="<?php echo $product->product_id ?>">
                         <button type="submit" name="delete-product" class="btn btn-danger-soft btn-remove-item" title="حذف">
                           <i class="bi bi-trash3"></i>

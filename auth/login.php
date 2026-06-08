@@ -1,5 +1,6 @@
 <?php
-require_once '../includes/header.php';
+require_once __DIR__ . '/../config/config.php';
+include __DIR__ . '/../includes/header.php';
 
 $error = '';
 
@@ -77,7 +78,7 @@ $page_title = "متجرنا — تسجيل الدخول";
   <div class="auth-wrapper">
     <div class="auth-card animate-fadeInUp">
       <div class="auth-logo">
-        <a href="index.php" style="color:inherit;">
+        <a href="<?php echo APPURL; ?>index.php" style="color:inherit;">
           <h2><i class="bi bi-bag-heart"></i> متجر<span>نا</span></h2>
         </a>
         <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">مرحباً بعودتك! سجّل دخولك للمتابعة</p>
@@ -123,7 +124,7 @@ $page_title = "متجرنا — تسجيل الدخول";
         </button>
       </form>
       <p class="text-center mb-0" style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">
-        ليس لديك حساب؟ <a href="<?php echo APPURL; ?>register.php" style="font-weight:600;">إنشاء حساب جديد</a>
+        ليس لديك حساب؟ <a href="<?php echo APPURL; ?>auth/register.php" style="font-weight:600;">إنشاء حساب جديد</a>
       </p>
     </div>
   </div>

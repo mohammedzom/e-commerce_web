@@ -1,8 +1,8 @@
 <?php
 $page_title = 'متجرنا — تفاصيل المنتج';
 $page_description = 'تفاصيل المنتج — ساعة يد أنيقة بتصميم كلاسيكي. اطلع على المواصفات والسعر وأضف للسلة.';
-include 'includes/header.php';
 require 'config/config.php';
+include 'includes/header.php';
 
 
 
@@ -94,7 +94,7 @@ $count_same_prodects = count($same_prodects);
               <?php endif; ?>
             </div>
 
-            <form action="add_to_cart.php" method="POST" class="bg-white p-3 rounded-4 shadow-sm mb-4" style="border: 1px solid var(--color-border-light);">
+            <form action="<?php echo APPURL; ?>actions/add_to_cart.php" method="POST" class="bg-white p-3 rounded-4 shadow-sm mb-4" style="border: 1px solid var(--color-border-light);">
               <div class="d-flex align-items-center gap-3 flex-wrap">
                 <div class="quantity-control">
                   <button class="qty-minus" name="remove" type="button">−</button>

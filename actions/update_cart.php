@@ -1,7 +1,6 @@
 <?php
-require "config/variables.php";
-require "config/config.php";
-require "includes/middleware/check-login.php";
+require __DIR__ . "/../config/config.php";
+require __DIR__ . "/../includes/middleware/check-login.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cart_id = isset($_POST['cart_id']) ? $_POST['cart_id'] : $_POST['cart_item_id'];
@@ -16,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'cart_id' => $cart_id,
             'user_id' => $user_id
         ]);
-        echo "<script>alert('تم تحديث الكمية'); window.location.href = 'cart.php';</script>";
+        echo "<script>alert('تم تحديث الكمية'); window.location.href = '" . APPURL . "cart.php';</script>";
     } else {
         // If quantity is 0, maybe remove it?
         $sql = "DELETE FROM cart_items WHERE cart_id = :cart_id AND user_id = :user_id";
@@ -25,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'cart_id' => $cart_id,
             'user_id' => $user_id
         ]);
-        header('Location: cart.php');
+        header('Location: ' . APPURL . 'cart.php');
     }
     exit;
 } else {
-    header('Location: cart.php');
+    header('Location: ' . APPURL . 'cart.php');
     exit;
 }

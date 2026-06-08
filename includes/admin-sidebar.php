@@ -1,6 +1,6 @@
 <aside class="admin-sidebar" id="adminSidebar">
     <div class="sidebar-brand">
-        <a href="<?= APPURL ?>/index.php" style="color:inherit;text-decoration:none;">
+        <a href="<?= APPURL ?>index.php" style="color:inherit;text-decoration:none;">
             <i class="bi bi-bag-heart"></i> متجر<span>نا</span>
         </a>
     </div>
