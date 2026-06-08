@@ -2,24 +2,36 @@
 require_once '../config/config.php';
 require_once '../includes/middleware/check-admin.php';
 
+$preveous_page = $_SERVER['HTTP_REFERER'];
+
 if (!isset($_POST['delete-product'])) {
-    header('Location: ' . APPURL . 'admin_products.php');
+    header('Location: ' . $preveous_page);
     exit;
 }
 
-$product_id = isset($_POST['prod_id']) ? (int) $_POST['prod_id'] : 0;
-$page = isset($_POST['page']) ? max(1, (int) $_POST['page']) : 1;
-$status = 'delete_error';
-
-if ($product_id > 0) {
-    try {
-        $deleted = $conn->prepare("DELETE FROM products WHERE product_id = :product_id")
-            ->execute([':product_id' => $product_id]);
-        $status = $deleted ? 'deleted' : 'delete_error';
-    } catch (Exception $e) {
-        $status = 'delete_error';
-    }
+if (!isset($_POST['product_id']) || !isset($_POST['page'])) {
+    echo "<script>alert('حدث خطأ في النظام، يرجى المحاولة مرة أخرى'); window.location.href = '" . $preveous_page . "';</script>";
+    exit;
 }
 
-header('Location: ' . APPURL . 'admin_products.php?page=' . $page . '&status=' . $status);
-exit;
+$product_id = (int)($_POST['product_id']);
+$page = (int)($_POST['page']);
+$page = max(1, $page);
+
+
+try {
+    $deleted = $conn->prepare("DELETE FROM products WHERE product_id = :product_id")
+        ->execute([':product_id' => $product_id]);
+    if ($deleted) {
+        echo "<script>alert('تم حذف المنتج بنجاح'); window.location.href = '" . $preveous_page . "';</script>";
+    } else {
+        echo "<script>alert('فشل حذف المنتج'); window.location.href = '" . $preveous_page . "';</script>";
+    }
+} catch (Exception $e) {
+    if ($e->getCode() == 23000) {
+        echo "<script>alert('المنتج موجود في طلبات سابقة، لا يمكن حذفه'); window.location.href = '" . $preveous_page . "';</script>";
+    } else {
+        echo "<script>alert('فشل حذف المنتج'); window.location.href = '" . $preveous_page . "';</script>";
+    }
+    exit;
+}

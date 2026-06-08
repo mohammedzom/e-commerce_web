@@ -2,15 +2,15 @@
 require __DIR__ . "/../config/config.php";
 require __DIR__ . "/../includes/middleware/check-login.php";
 
-$pervers_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : APPURL . 'index.php';
+$pervers_page = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : APPURL . 'index.php';
 
-if (isset($_POST['add_to_cart'])) {
-    $product_id = $_POST['product_id'];
-    $quantity = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;
+if (isset($_POST['add_to_cart']) && isset($_POST['product_id'])) {
+    $product_id = (int) $_POST['product_id'];
     $user_id = $_SESSION['user_id'];
 
+
     if (!$product_id) {
-        header('Location: ' . $pervers_url);
+        header('Location: ' . $pervers_page);
         exit;
     }
 
@@ -23,29 +23,40 @@ if (isset($_POST['add_to_cart'])) {
         exit;
     }
 
-    $cart_item = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
-    $cart_item->execute(['user_id' => $user_id, 'product_id' => $product_id]);
-    $existing = $cart_item->fetch(PDO::FETCH_OBJ);
+    $stmt = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
+    $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id]);
+    $cart_item = $stmt->fetch(PDO::FETCH_OBJ);
 
-    if ($existing) {
-        $new_qty = $existing->quantity + $quantity;
-        if ($new_qty > $product->stock_quantity) {
-            $new_qty = $product->stock_quantity;
+    if (isset($_POST['quantity'])) {
+        $quantity = (int) $_POST['quantity'];
+    } else {
+        if ($cart_item) {
+            $quantity = $cart_item->quantity + 1;
+        } else {
+            $quantity = 1;
+        }
+    }
+
+    if ($cart_item) {
+
+        if ($quantity > $product->stock_quantity) {
+            echo "<script>alert('الكمية المطلوبة أكثر من الكمية المتوفرة'); window.history.back();</script>";
+            exit;
         }
 
-        $conn->prepare("UPDATE cart_items SET quantity = :qty WHERE user_id = :user_id AND product_id = :product_id")
-            ->execute(['qty' => $new_qty, 'user_id' => $user_id, 'product_id' => $product_id]);
+        $stmt = $conn->prepare("UPDATE cart_items SET quantity = :quantity WHERE user_id = :user_id AND product_id = :product_id");
+        $stmt->execute(['quantity' => $quantity, 'user_id' => $user_id, 'product_id' => $product_id]);
 
-        echo "<script>alert('تم تحديث الكمية في السلة'); window.location.href = '" . $pervers_url . "';</script>";
+        echo "<script>alert('تم تحديث الكمية في السلة'); window.location.href = '" . $pervers_page . "';</script>";
         exit;
     } else {
-        $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)")
-            ->execute(['user_id' => $user_id, 'product_id' => $product_id, 'quantity' => $quantity]);
+        $stmt = $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)");
+        $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id, 'quantity' => $quantity]);
 
-        echo "<script>alert('تمت الإضافة إلى السلة'); window.location.href = '" . $pervers_url . "';</script>";
+        echo "<script>alert('تمت الإضافة إلى السلة'); window.location.href = '" . $pervers_page . "';</script>";
         exit;
     }
 } else {
-    header('Location: ' . $pervers_url);
+    header('Location: ' . $pervers_page);
     exit;
 }

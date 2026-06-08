@@ -140,7 +140,7 @@ $status = $_GET['status'] ?? '';
                   <div class="d-flex gap-1">
                     <a class="btn btn-outline-custom btn-sm-custom" href="<?php echo APPURL; ?>admin_product_form.php?id=<?php echo $product->product_id; ?>" title="تعديل"><i class="bi bi-pencil"></i></a>
                     <form action="<?php echo APPURL; ?>actions/delete_product.php" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">
-                      <input type="hidden" name="prod_id" value="<?php echo $product->product_id ?>">
+                      <input type="hidden" name="product_id" value="<?php echo $product->product_id ?>">
                       <input type="hidden" name="page" value="<?php echo $current_page; ?>">
                       <button type="submit" name="delete-product" class="btn btn-danger-soft btn-remove-item" title="حذف">
                         <i class="bi bi-trash3"></i>
