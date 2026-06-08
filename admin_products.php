@@ -40,6 +40,8 @@ $status_messages = [
   'added' => ['class' => 'success', 'text' => 'تم إضافة المنتج بنجاح.'],
   'updated' => ['class' => 'success', 'text' => 'تم تعديل المنتج بنجاح.'],
   'deleted' => ['class' => 'success', 'text' => 'تم حذف المنتج بنجاح.'],
+  'add_error' => ['class' => 'danger', 'text' => 'فشل إضافة المنتج.'],
+  'update_error' => ['class' => 'danger', 'text' => 'فشل تعديل المنتج.'],
   'delete_error' => ['class' => 'danger', 'text' => 'فشل حذف المنتج.'],
   'not_found' => ['class' => 'warning', 'text' => 'المنتج غير موجود.'],
 ];
@@ -127,13 +129,13 @@ $status = $_GET['status'] ?? '';
                 <td><?= $product->product_id ?></td>
                 <td>
                   <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="<?= $product->image_url ?>" alt="<?= $product->name ?>" style="width:100%;height:100%;object-fit:cover;">
+                    <img src="<?= htmlspecialchars($product->image_url, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8') ?>" style="width:100%;height:100%;object-fit:cover;">
                   </div>
                 </td>
-                <td><strong><?= $product->name ?></strong></td>
-                <td><?= $product->category_name ?></td>
-                <td><?= $product->price ?> ش</td>
-                <td><?= $product->stock_quantity ?></td>
+                <td><strong><?= htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8') ?></strong></td>
+                <td><?= htmlspecialchars($product->category_name ?? 'بدون تصنيف', ENT_QUOTES, 'UTF-8') ?></td>
+                <td><?= htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8') ?> ش</td>
+                <td><?= htmlspecialchars($product->stock_quantity, ENT_QUOTES, 'UTF-8') ?></td>
                 <td>
                   <div class="d-flex gap-1">
                     <a class="btn btn-outline-custom btn-sm-custom" href="<?php echo APPURL; ?>admin_product_form.php?id=<?php echo $product->product_id; ?>" title="تعديل"><i class="bi bi-pencil"></i></a>
