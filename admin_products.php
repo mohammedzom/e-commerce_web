@@ -5,7 +5,7 @@ require_once 'config/config.php';
 require_once 'includes/middleware/check-admin.php';
 include 'includes/header.php';
 
-$products_per_page = 6;
+$products_per_page = 15;
 $total_products = (int) $conn->query("SELECT COUNT(*) FROM products")->fetchColumn();
 $total_pages = max(1, (int) ceil($total_products / $products_per_page));
 $current_page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
@@ -35,6 +35,15 @@ $products_stmt->bindValue(':limit', $products_per_page, PDO::PARAM_INT);
 $products_stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $products_stmt->execute();
 $products = $products_stmt->fetchAll(PDO::FETCH_OBJ);
+
+$status_messages = [
+  'added' => ['class' => 'success', 'text' => 'تم إضافة المنتج بنجاح.'],
+  'updated' => ['class' => 'success', 'text' => 'تم تعديل المنتج بنجاح.'],
+  'deleted' => ['class' => 'success', 'text' => 'تم حذف المنتج بنجاح.'],
+  'delete_error' => ['class' => 'danger', 'text' => 'فشل حذف المنتج.'],
+  'not_found' => ['class' => 'warning', 'text' => 'المنتج غير موجود.'],
+];
+$status = $_GET['status'] ?? '';
 ?>
 
 <body>
@@ -48,10 +57,16 @@ $products = $products_stmt->fetchAll(PDO::FETCH_OBJ);
         </button>
         <h1 style="display:inline-block;vertical-align:middle;margin-right:var(--space-sm);">إدارة المنتجات</h1>
       </div>
-      <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addProductModal" id="addProductBtn">
+      <a class="btn btn-primary-custom" href="<?php echo APPURL; ?>admin_product_form.php" id="addProductBtn">
         <i class="bi bi-plus-lg me-2"></i>إضافة منتج
-      </button>
+      </a>
     </div>
+
+    <?php if (isset($status_messages[$status])): ?>
+      <div class="alert alert-<?php echo $status_messages[$status]['class']; ?>" role="alert">
+        <?php echo $status_messages[$status]['text']; ?>
+      </div>
+    <?php endif; ?>
 
     <div class="card-custom" style="padding:var(--space-lg);border-radius:var(--radius-lg);margin-bottom:var(--space-xl);">
       <div class="row g-3 align-items-end">
@@ -121,9 +136,10 @@ $products = $products_stmt->fetchAll(PDO::FETCH_OBJ);
                 <td><?= $product->stock_quantity ?></td>
                 <td>
                   <div class="d-flex gap-1">
-                    <button class="btn btn-outline-custom btn-sm-custom" title="تعديل"><i class="bi bi-pencil"></i></button>
-                    <form action="admin_products.php" method="POST">
+                    <a class="btn btn-outline-custom btn-sm-custom" href="<?php echo APPURL; ?>admin_product_form.php?id=<?php echo $product->product_id; ?>" title="تعديل"><i class="bi bi-pencil"></i></a>
+                    <form action="<?php echo APPURL; ?>actions/delete_product.php" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">
                       <input type="hidden" name="prod_id" value="<?php echo $product->product_id ?>">
+                      <input type="hidden" name="page" value="<?php echo $current_page; ?>">
                       <button type="submit" name="delete-product" class="btn btn-danger-soft btn-remove-item" title="حذف">
                         <i class="bi bi-trash3"></i>
                       </button>
@@ -195,64 +211,6 @@ $products = $products_stmt->fetchAll(PDO::FETCH_OBJ);
       <?php endif; ?>
     </div>
   </main>
-  </div>
-
-  <div class="modal fade" id="addProductModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content" style="border:none;border-radius:var(--radius-xl);">
-        <div class="modal-header" style="border-bottom:1px solid var(--color-border-light);padding:var(--space-xl);">
-          <h5 class="modal-title" style="font-weight:700;">
-            <i class="bi bi-plus-circle ms-2 text-primary-custom"></i>إضافة منتج جديد
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" style="padding:var(--space-xl);">
-          <form id="addProductForm" method="post" enctype="multipart/form-data">
-            <div class="row g-3">
-              <div class="col-md-8">
-                <label class="form-label-custom" for="newProductName">اسم المنتج</label>
-                <input type="text" class="form-control form-control-custom" id="newProductName" placeholder="أدخل اسم المنتج" name="name">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label-custom" for="newProductCategory">التصنيف</label>
-                <select class="form-select form-select-custom" id="newProductCategory" name="category_id">
-                  <?php
-                  $categories = $conn->prepare("SELECT * FROM categories");
-                  $categories->execute();
-                  $categories = $categories->fetchAll(PDO::FETCH_OBJ);
-                  foreach ($categories as $category) : ?>
-                    <option value="<?= $category->category_id ?>"><?= $category->name ?></option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label-custom" for="newProductPrice">السعر (ش)</label>
-                <input type="number" class="form-control form-control-custom" id="newProductPrice" placeholder="0.00" name="price">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label-custom" for="newProductStock">المخزون</label>
-                <input type="number" class="form-control form-control-custom" id="newProductStock" placeholder="0" name="stock">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label-custom" for="newProductImage">صورة المنتج</label>
-                <input type="file" class="form-control form-control-custom" id="newProductImage" accept="image/*" name="prodect_image">
-
-              </div>
-              <div class="col-12">
-                <label class="form-label-custom" for="newProductDescription">وصف المنتج</label>
-                <textarea class="form-control form-control-custom" id="newProductDescription" rows="4" placeholder="أدخل وصف المنتج ..." name="description"></textarea>
-              </div>
-            </div>
-            <div class="modal-footer" style="border-top:1px solid var(--color-border-light);padding:var(--space-lg) var(--space-xl);margin-top:var(--space-lg);">
-              <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">إلغاء</button>
-              <button type="submit" class="btn btn-primary-custom" id="saveProductBtn" name="saveProductBtn">
-                <i class="bi bi-check-lg me-2"></i>حفظ المنتج
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
