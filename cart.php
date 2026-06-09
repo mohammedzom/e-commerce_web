@@ -7,7 +7,16 @@ include 'includes/header.php';
 
 
 $user_id = $_SESSION['user_id'];
-$cart_items = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id");
+$cart_items = $conn->prepare("
+  SELECT 
+    c.name as category_name, 
+    ci.quantity as cart_quantity, 
+    p.* , 
+    ci.cart_id as cart_id  
+  FROM cart_items ci
+  INNER JOIN products p ON ci.product_id = p.product_id 
+  INNER JOIN categories c ON p.category_id = c.category_id 
+  WHERE ci.user_id = :user_id");
 $cart_items->execute(['user_id' => $user_id]);
 $cart_items = $cart_items->fetchAll(PDO::FETCH_OBJ);
 
@@ -15,11 +24,7 @@ $count_cart_items = count($cart_items);
 
 $total = 0;
 foreach ($cart_items as $cart_item) {
-  $product = $conn->prepare("SELECT price FROM products WHERE product_id = :product_id");
-  $product->execute(['product_id' => $cart_item->product_id]);
-  $product = $product->fetch(PDO::FETCH_OBJ);
-
-  $total += $product->price * $cart_item->quantity;
+  $total += $cart_item->price * $cart_item->cart_quantity;
 }
 
 ?>
@@ -64,34 +69,30 @@ foreach ($cart_items as $cart_item) {
                     <td colspan="5" class="text-center">لا توجد منتجات في السلة</td>
                   </tr>
                 <?php } ?>
-                <?php foreach ($cart_items as $cart_item):
-                  $product = $conn->prepare("SELECT * FROM products WHERE product_id = :product_id");
-                  $product->execute(['product_id' => $cart_item->product_id]);
-                  $product = $product->fetch(PDO::FETCH_OBJ);
-                ?>
+                <?php foreach ($cart_items as $cart_item): ?>
 
                   <tr>
                     <td>
                       <div class="d-flex align-items-center gap-3">
                         <div style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg-alt);flex-shrink:0;">
-                          <img src="<?php echo $product->image_url ?>" alt="<?php echo $product->name ?>" style="width:100%;height:100%;object-fit:cover;">
+                          <img src="<?php echo $cart_item->image_url ?>" alt="<?php echo $cart_item->name ?>" style="width:100%;height:100%;object-fit:cover;">
                         </div>
                         <div>
-                          <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;"><?php echo $product->name ?></h6>
-                          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);"><?php echo $product->category_id ?></span>
+                          <h6 style="font-size:var(--font-size-sm);font-weight:600;margin-bottom:2px;"><?php echo $cart_item->name ?></h6>
+                          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);"><?php echo $cart_item->category_name ?></span>
                         </div>
                       </div>
                     </td>
-                    <td style="white-space:nowrap;"><?php echo $product->price ?> ش</td>
+                    <td style="white-space:nowrap;"><?php echo $cart_item->price ?> ش</td>
                     <form action="<?php echo APPURL; ?>actions/update_cart.php" method="POST">
                       <td>
                         <div class="quantity-control">
                           <button class="qty-minus" type="button">−</button>
-                          <input type="number" value="<?php echo $cart_item->quantity ?>" min="1" max="<?php echo $product->stock_quantity ?>" name="new_quantity">
+                          <input type="number" value="<?php echo $cart_item->cart_quantity ?>" min="1" max="<?php echo $cart_item->stock_quantity ?>" name="new_quantity">
                           <button class="qty-plus" type="button">+</button>
                         </div>
                       </td>
-                      <td style="white-space:nowrap;font-weight:600;"><?php echo $product->price * $cart_item->quantity ?> ش</td>
+                      <td style="white-space:nowrap;font-weight:600;"><?php echo $cart_item->price * $cart_item->cart_quantity ?> ش</td>
                       <td style="display: flex; flex-direction: column; gap: 10px;">
 
                         <input type="hidden" name="cart_id" value="<?php echo $cart_item->cart_id ?>">
@@ -108,7 +109,7 @@ foreach ($cart_items as $cart_item) {
                     </form>
                     </td>
                   </tr>
-                <?php endforeach ?>
+                <?php endforeach; ?>
               </tbody>
             </table>
           </div>
