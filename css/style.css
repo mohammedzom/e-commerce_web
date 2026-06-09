@@ -2289,3 +2289,45 @@ ul {
     display: none;
   }
 }
+
+/* ============================================
+   25. Responsive Admin Tables (Cards on Mobile)
+   ============================================ */
+@media (max-width: 991.98px) {
+  /* Only apply to tables with table-custom inside table-responsive */
+  .table-responsive .table-custom thead {
+    display: none; /* Hide standard headers */
+  }
+  
+  .table-responsive .table-custom tbody tr {
+    display: block;
+    margin-bottom: var(--space-md);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+  }
+  
+  .table-responsive .table-custom tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border-light);
+    text-align: right;
+  }
+  
+  .table-responsive .table-custom tbody td:last-child {
+    border-bottom: none;
+    justify-content: center; /* Center actions */
+    background-color: var(--color-bg-alt); /* Light background for actions */
+  }
+  
+  .table-responsive .table-custom tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    margin-left: var(--space-md); /* Arabic spacing (right-to-left) */
+  }
+}

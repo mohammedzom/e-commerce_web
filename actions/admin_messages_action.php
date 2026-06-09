@@ -47,6 +47,21 @@ try {
     ]);
   }
 
+  if ($action === 'toggle_read') {
+    if (count($ids) === 0) {
+      jsonResponse(['success' => false, 'message' => 'لم يتم تحديد أي رسائل.'], 422);
+    }
+
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $stmt = $conn->prepare("UPDATE contacts SET is_read = 1 - is_read WHERE ` message_id` IN ($placeholders)");
+    $stmt->execute($ids);
+
+    jsonResponse([
+      'success' => true,
+      'counts' => messageCounts($conn),
+    ]);
+  }
+
   if ($action === 'mark_all_read') {
     $conn->exec("UPDATE contacts SET is_read = 1 WHERE is_read = 0");
 

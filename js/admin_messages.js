@@ -226,35 +226,55 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCounts();
   }
 
-  function applyReadState(row) {
+  function toggleReadState(row) {
     if (!row) return;
 
-    row.classList.remove('row-unread');
-    row.dataset.status = 'read';
-
-    row.querySelector('.unread-dot')?.remove();
-    row.querySelector('.msg-avatar')?.classList.add('read');
-    row.querySelector('.sender-name')?.classList.add('read');
-
-    const subject = row.querySelector('.subj-unread, .subj-read');
-    if (subject) subject.className = 'subj-read';
-
-    const badge = row.querySelector('.status-badge');
-    if (badge) {
-      badge.className = 'status-badge status-completed';
-      badge.innerHTML = '<i class="bi bi-envelope-open" style="font-size:0.65rem;"></i> مقروءة';
+    const isUnread = row.dataset.status === 'unread';
+    const newStatus = isUnread ? 'read' : 'unread';
+    
+    row.dataset.status = newStatus;
+    
+    if (newStatus === 'unread') {
+      row.classList.add('row-unread');
+      row.querySelector('.subj-read')?.classList.replace('subj-read', 'subj-unread');
+      
+      const badge = row.querySelector('.status-badge');
+      if (badge) {
+        badge.className = 'status-badge status-pending';
+        badge.innerHTML = '<i class="bi bi-envelope-fill"></i> جديدة';
+      }
+      
+      const toggleBtn = row.querySelector('.btn-toggle-read');
+      if (toggleBtn) {
+        toggleBtn.className = 'btn btn-sm-custom btn-toggle-read btn-make-unread';
+        toggleBtn.title = 'تحديد كمقروء';
+        toggleBtn.innerHTML = '<i class="bi bi-check2"></i>';
+      }
+    } else {
+      row.classList.remove('row-unread');
+      row.querySelector('.subj-unread')?.classList.replace('subj-unread', 'subj-read');
+      
+      const badge = row.querySelector('.status-badge');
+      if (badge) {
+        badge.className = 'status-badge status-completed';
+        badge.innerHTML = '<i class="bi bi-envelope-open"></i> مقروءة';
+      }
+      
+      const toggleBtn = row.querySelector('.btn-toggle-read');
+      if (toggleBtn) {
+        toggleBtn.className = 'btn btn-sm-custom btn-toggle-read btn-make-read';
+        toggleBtn.title = 'تحديد كغير مقروء';
+        toggleBtn.innerHTML = '<i class="bi bi-envelope"></i>';
+      }
     }
-
-    row.querySelector('.btn-mark-read')?.remove();
   }
 
-  async function markRowsRead(targetRows) {
-    const unreadRows = targetRows.filter(row => row.dataset.status === 'unread');
-    if (!unreadRows.length) return;
+  async function toggleRowsRead(targetRows) {
+    if (!targetRows.length) return;
 
     try {
-      const payload = await requestAction('mark_read', unreadRows.map(row => row.dataset.id));
-      unreadRows.forEach(applyReadState);
+      const payload = await requestAction('toggle_read', targetRows.map(row => row.dataset.id));
+      targetRows.forEach(toggleReadState);
       updateCounts(payload.counts);
       applyList();
     } catch (error) {
@@ -268,7 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const payload = await requestAction('mark_all_read');
-      unreadRows.forEach(applyReadState);
+      unreadRows.forEach(row => {
+        if (row.dataset.status === 'unread') toggleReadState(row);
+      });
       updateCounts(payload.counts);
       applyList();
     } catch (error) {
@@ -326,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('modalReplyBtn').href = `mailto:${email}?subject=${encodeURIComponent(`رد: ${subject}`)}`;
 
     if (row.dataset.status === 'unread') {
-      markRowsRead([row]);
+      toggleRowsRead([row]);
     }
 
     if (msgModal) msgModal.show();
@@ -349,10 +371,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   tbody.addEventListener('click', event => {
-    const markButton = event.target.closest('.btn-mark-read');
-    if (markButton) {
+    const toggleButton = event.target.closest('.btn-toggle-read');
+    if (toggleButton) {
       event.stopPropagation();
-      markRowsRead([markButton.closest('tr.msg-row')]);
+      toggleRowsRead([toggleButton.closest('tr.msg-row')]);
       return;
     }
 
@@ -363,14 +385,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (event.target.closest('button, input, a, select, label')) return;
-
-    const row = event.target.closest('tr.msg-row');
-    if (row) openMessageModal(row);
+    const viewButton = event.target.closest('.btn-view-msg');
+    if (viewButton) {
+      event.stopPropagation();
+      const row = viewButton.closest('tr.msg-row');
+      if (row) openMessageModal(row);
+      return;
+    }
   });
 
   if (bulkMarkRead) {
-    bulkMarkRead.addEventListener('click', () => markRowsRead(checkedRows()));
+    bulkMarkRead.addEventListener('click', () => toggleRowsRead(checkedRows().filter(r => r.dataset.status === 'unread')));
   }
 
   if (deleteSelectedBtn) {

@@ -117,70 +117,52 @@ $visible_messages = min($total_messages, 8);
 
             <?php foreach ($messages as $message): ?>
               <?php
-              $name = (string) $message->name;
-              $email = (string) $message->email;
-              $subject = $message->subject ? (string) $message->subject : 'بدون موضوع';
-              $body = (string) $message->message;
-              $status = (int) $message->is_read === 0 ? 'unread' : 'read';
-              $is_unread = $status === 'unread';
+              $name = $message->name;
+              $email = $message->email;
+              $subject = $message->subject ?: 'بدون موضوع';
+              $body = $message->message;
+              $is_unread = (int)$message->is_read === 0;
               $date_value = $message->submitted_at ? date('Y-m-d', strtotime($message->submitted_at)) : '';
               $date_text = $message->submitted_at ? date('Y-m-d H:i', strtotime($message->submitted_at)) : '-';
-              $first_letter = function_exists('mb_substr') ? mb_substr(trim($name), 0, 1, 'UTF-8') : substr(trim($name), 0, 1);
-              $preview = trim(preg_replace('/\s+/u', ' ', $body));
-
-              if (function_exists('mb_strlen') && function_exists('mb_substr')) {
-                $preview = mb_strlen($preview, 'UTF-8') > 28 ? mb_substr($preview, 0, 28, 'UTF-8') . '...' : $preview;
-              } else {
-                $preview = strlen($preview) > 28 ? substr($preview, 0, 28) . '...' : $preview;
-              }
-
+              $preview = mb_strlen($body, 'UTF-8') > 30 ? mb_substr($body, 0, 30, 'UTF-8') . '...' : $body;
               $status_class = $is_unread ? 'status-pending' : 'status-completed';
               $status_icon = $is_unread ? 'bi-envelope-fill' : 'bi-envelope-open';
               $status_text = $is_unread ? 'جديدة' : 'مقروءة';
               ?>
-              <tr class="<?php echo $is_unread ? 'row-unread ' : ''; ?>msg-row"
-                data-id="<?php echo (int) $message->message_id; ?>"
-                data-status="<?php echo $status; ?>"
-                data-name="<?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>"
-                data-email="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"
-                data-subject="<?php echo htmlspecialchars($subject, ENT_QUOTES, 'UTF-8'); ?>"
-                data-body="<?php echo htmlspecialchars($body, ENT_QUOTES, 'UTF-8'); ?>"
-                data-date="<?php echo htmlspecialchars($date_text, ENT_QUOTES, 'UTF-8'); ?>"
-                data-date-value="<?php echo htmlspecialchars($date_value, ENT_QUOTES, 'UTF-8'); ?>">
-                <td>
-                  <input class="form-check-input row-check" type="checkbox" style="cursor:pointer;width:16px;height:16px;">
+              <tr class="<?= $is_unread ? 'row-unread ' : '' ?>msg-row"
+                data-id="<?= $message->message_id ?>"
+                data-status="<?= $is_unread ? 'unread' : 'read' ?>"
+                data-name="<?= htmlspecialchars($name) ?>"
+                data-email="<?= htmlspecialchars($email) ?>"
+                data-subject="<?= htmlspecialchars($subject) ?>"
+                data-body="<?= htmlspecialchars($body) ?>"
+                data-date="<?= htmlspecialchars($date_text) ?>"
+                data-date-value="<?= htmlspecialchars($date_value) ?>">
+                <td data-label="تحديد">
+                  <input class="form-check-input row-check" type="checkbox" style="cursor:pointer;">
                 </td>
-                <td>
-                  <div class="sender-cell">
-                    <div class="avatar-wrap">
-                      <div class="msg-avatar <?php echo $is_unread ? '' : 'read'; ?>">
-                        <?php echo htmlspecialchars($first_letter ?: '؟', ENT_QUOTES, 'UTF-8'); ?>
-                      </div>
-                      <?php if ($is_unread): ?>
-                        <span class="unread-dot"></span>
-                      <?php endif; ?>
-                    </div>
-                    <span class="sender-name <?php echo $is_unread ? '' : 'read'; ?>">
-                      <?php echo htmlspecialchars($name, ENT_QUOTES, 'UTF-8'); ?>
-                    </span>
-                  </div>
+                <td data-label="المرسل">
+                  <strong><?= htmlspecialchars($name) ?></strong>
                 </td>
-                <td><span class="msg-email"><?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                <td><span class="<?php echo $is_unread ? 'subj-unread' : 'subj-read'; ?>"><?php echo htmlspecialchars($subject, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                <td><span class="msg-preview"><?php echo htmlspecialchars($preview, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                <td><span class="msg-date"><?php echo htmlspecialchars($date_text, ENT_QUOTES, 'UTF-8'); ?></span></td>
-                <td>
-                  <span class="status-badge <?php echo $status_class; ?>">
-                    <i class="bi <?php echo $status_icon; ?>"></i> <?php echo $status_text; ?>
+                <td data-label="البريد الإلكتروني"><?= htmlspecialchars($email) ?></td>
+                <td data-label="الموضوع">
+                  <strong class="<?= $is_unread ? 'text-primary-custom' : '' ?>"><?= htmlspecialchars($subject) ?></strong>
+                </td>
+                <td data-label="مقتطف"><span class="text-muted-custom"><?= htmlspecialchars($preview) ?></span></td>
+                <td data-label="التاريخ"><?= htmlspecialchars($date_text) ?></td>
+                <td data-label="الحالة">
+                  <span class="status-badge <?= $status_class ?>">
+                    <i class="bi <?= $status_icon ?>"></i> <?= $status_text ?>
                   </span>
                 </td>
-                <td>
-                  <div class="msg-actions">
-                    <?php if ($is_unread): ?>
-                      <button class="btn btn-success-soft btn-mark-read" type="button" title="تحديد كمقروء">
-                        <i class="bi bi-check2"></i>
-                      </button>
-                    <?php endif; ?>
+                <td data-label="الإجراءات">
+                  <div class="d-flex gap-1 justify-content-end">
+                    <button class="btn btn-outline-custom btn-sm-custom btn-view-msg" type="button" title="عرض التفاصيل">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm-custom btn-toggle-read <?= $is_unread ? 'btn-make-unread' : 'btn-make-read' ?>" type="button" title="<?= $is_unread ? 'تحديد كمقروء' : 'تحديد كغير مقروء' ?>">
+                      <i class="bi <?= $is_unread ? 'bi-check2' : 'bi-envelope' ?>"></i>
+                    </button>
                     <button class="btn btn-danger-soft btn-delete-msg" type="button" title="حذف">
                       <i class="bi bi-trash3"></i>
                     </button>

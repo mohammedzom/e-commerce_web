@@ -46,6 +46,16 @@ $status_messages = [
   'not_found' => ['class' => 'warning', 'text' => 'المنتج غير موجود.'],
 ];
 $status = $_GET['status'] ?? '';
+
+$page_get = $_GET;
+unset($page_get['page']);
+$base_q = http_build_query($page_get);
+$base_url = 'admin_products.php?' . ($base_q ? $base_q . '&' : '');
+$max_visible = 5;
+$start_page = max(1, $current_page - floor($max_visible / 2));
+$end_page = min($total_pages, $start_page + $max_visible - 1);
+$start_page = max(1, $end_page - $max_visible + 1);
+
 ?>
 
 <body>
@@ -126,17 +136,17 @@ $status = $_GET['status'] ?? '';
             <?php
             foreach ($products as $product) : ?>
               <tr>
-                <td><?= $product->product_id ?></td>
-                <td>
+                <td data-label="#"> <?= $product->product_id ?></td>
+                <td data-label="الصورة">
                   <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
-                    <img src="<?= htmlspecialchars($product->image_url, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8') ?>" style="width:100%;height:100%;object-fit:cover;">
+                    <img src="<?= htmlspecialchars($product->image_url) ?>" alt="<?= htmlspecialchars($product->name) ?>" style="width:100%;height:100%;object-fit:cover;">
                   </div>
                 </td>
-                <td><strong><?= htmlspecialchars($product->name, ENT_QUOTES, 'UTF-8') ?></strong></td>
-                <td><?= htmlspecialchars($product->category_name ?? 'بدون تصنيف', ENT_QUOTES, 'UTF-8') ?></td>
-                <td><?= htmlspecialchars($product->price, ENT_QUOTES, 'UTF-8') ?> ش</td>
-                <td><?= htmlspecialchars($product->stock_quantity, ENT_QUOTES, 'UTF-8') ?></td>
-                <td>
+                <td data-label="اسم المنتج"><strong><?= htmlspecialchars($product->name) ?></strong></td>
+                <td data-label="التصنيف"><?= htmlspecialchars($product->category_name ?? 'بدون تصنيف') ?></td>
+                <td data-label="السعر"><?= htmlspecialchars($product->price) ?> ش</td>
+                <td data-label="المخزون"><?= htmlspecialchars($product->stock_quantity) ?></td>
+                <td data-label="الإجراءات">
                   <div class="d-flex gap-1">
                     <a class="btn btn-outline-custom btn-sm-custom" href="<?php echo APPURL; ?>admin_product_form.php?id=<?php echo $product->product_id; ?>" title="تعديل"><i class="bi bi-pencil"></i></a>
                     <form action="<?php echo APPURL; ?>actions/delete_product.php" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">
@@ -162,16 +172,6 @@ $status = $_GET['status'] ?? '';
 
       <?php if ($total_pages > 1): ?>
         <nav>
-          <?php
-          $page_get = $_GET;
-          unset($page_get['page']);
-          $base_q = http_build_query($page_get);
-          $base_url = 'admin_products.php?' . ($base_q ? $base_q . '&' : '');
-          $max_visible = 5;
-          $start_page = max(1, $current_page - floor($max_visible / 2));
-          $end_page = min($total_pages, $start_page + $max_visible - 1);
-          $start_page = max(1, $end_page - $max_visible + 1);
-          ?>
           <ul class="pagination mb-0" style="gap:4px;">
             <li class="page-item <?php echo ($current_page <= 1) ? 'disabled' : ''; ?>">
               <a class="page-link border-0 rounded-3" href="<?php echo ($current_page > 1) ? $base_url . 'page=' . ($current_page - 1) : '#'; ?>" style="color:var(--color-text-muted);"><i class="bi bi-chevron-right"></i></a>
