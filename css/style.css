@@ -1895,6 +1895,7 @@ ul {
    24. Responsive
    ============================================ */
 @media (max-width: 1399.98px) {
+
   .messages-table th:nth-child(3),
   .messages-table td:nth-child(3) {
     display: none;
@@ -1912,6 +1913,7 @@ ul {
 }
 
 @media (max-width: 1199.98px) {
+
   .messages-table th:nth-child(5),
   .messages-table td:nth-child(5) {
     display: none;
@@ -2143,5 +2145,229 @@ ul {
 
   .message-modal-footer .btn {
     width: 100%;
+  }
+}
+
+
+/* ============================================
+   Legacy Admin Messages Table
+   Supports admin_messages.php markup
+   ============================================ */
+.msg-table-wrap {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table-messages {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.table-messages colgroup .col-check {
+  width: 44px;
+}
+
+.table-messages colgroup .col-sender {
+  width: 170px;
+}
+
+.table-messages colgroup .col-email {
+  width: 180px;
+}
+
+.table-messages colgroup .col-subj {
+  width: 170px;
+}
+
+.table-messages colgroup .col-body {
+  width: auto;
+}
+
+.table-messages colgroup .col-date {
+  width: 110px;
+}
+
+.table-messages colgroup .col-status {
+  width: 115px;
+}
+
+.table-messages colgroup .col-act {
+  width: 88px;
+}
+
+.table-messages thead tr {
+  background-color: var(--color-bg-alt);
+  border-bottom: 1.5px solid var(--color-border);
+}
+
+.table-messages thead th {
+  padding: 0.85rem 1rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table-messages thead th:first-child {
+  padding-right: 1.25rem;
+}
+
+.table-messages tbody tr {
+  border-bottom: 1px solid var(--color-border-light);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.table-messages tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table-messages tbody tr:hover {
+  background-color: var(--color-primary-ultra-light);
+}
+
+.table-messages tbody td {
+  padding: 0.9rem 1rem;
+  font-size: var(--font-size-sm);
+  vertical-align: middle;
+}
+
+.table-messages tbody td:first-child {
+  padding-right: 1.25rem;
+}
+
+.row-unread {
+  background-color: #F0F8FD;
+  border-right: 3px solid var(--color-primary);
+}
+
+.row-unread:hover {
+  background-color: #E8F4FA !important;
+}
+
+.sender-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.msg-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.msg-avatar.read {
+  background-color: var(--color-bg-alt);
+  color: var(--color-text-muted);
+}
+
+.sender-name {
+  overflow: hidden;
+  color: var(--color-text);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sender-name.read {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.subj-unread {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.subj-read {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.msg-preview {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msg-date {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+.msg-email {
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msg-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.avatar-wrap {
+  position: relative;
+}
+
+.unread-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--color-white);
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.filters-card {
+  margin-bottom: var(--space-xl);
+  padding: var(--space-lg) var(--space-xl);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+}
+
+.pagination .page-link {
+  border-radius: var(--radius-sm) !important;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+}
+
+@media (max-width: 991.98px) {
+
+  .table-messages colgroup .col-email,
+  .table-messages .col-email-td {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+
+  .table-messages colgroup .col-body,
+  .table-messages .col-body-td {
+    display: none;
   }
 }
