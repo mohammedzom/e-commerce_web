@@ -21,7 +21,6 @@ $messages = $conn->query("
 $total_messages = (int) $conn->query("SELECT COUNT(*) FROM contacts")->fetchColumn();
 $unread_count = (int) $conn->query("SELECT COUNT(*) FROM contacts WHERE is_read = 0")->fetchColumn();
 $latest_message_date = $conn->query("SELECT MAX(submitted_at) FROM contacts")->fetchColumn();
-$latest_message_text = $latest_message_date ? date('Y-m-d H:i', strtotime($latest_message_date)) : 'لا توجد رسائل';
 $visible_messages = min($total_messages, 8);
 ?>
 
@@ -46,9 +45,6 @@ $visible_messages = min($total_messages, 8);
               <span id="unreadCount"><?php echo $unread_count; ?></span> جديدة
             </span>
           </h1>
-          <p class="mb-0" style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:2px;">
-            إجمالي <span id="totalMessagesCount"><?php echo $total_messages; ?></span> رسالة · آخر رسالة: <?php echo htmlspecialchars($latest_message_text, ENT_QUOTES, 'UTF-8'); ?>
-          </p>
         </div>
       </div>
       <div class="d-flex gap-2">
@@ -133,9 +129,9 @@ $visible_messages = min($total_messages, 8);
               $preview = trim(preg_replace('/\s+/u', ' ', $body));
 
               if (function_exists('mb_strlen') && function_exists('mb_substr')) {
-                $preview = mb_strlen($preview, 'UTF-8') > 45 ? mb_substr($preview, 0, 45, 'UTF-8') . '...' : $preview;
+                $preview = mb_strlen($preview, 'UTF-8') > 28 ? mb_substr($preview, 0, 28, 'UTF-8') . '...' : $preview;
               } else {
-                $preview = strlen($preview) > 45 ? substr($preview, 0, 45) . '...' : $preview;
+                $preview = strlen($preview) > 28 ? substr($preview, 0, 28) . '...' : $preview;
               }
 
               $status_class = $is_unread ? 'status-pending' : 'status-completed';

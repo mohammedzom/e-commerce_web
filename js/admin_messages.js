@@ -154,10 +154,38 @@ document.addEventListener('DOMContentLoaded', () => {
       pagination.appendChild(item);
     };
 
+    const appendEllipsis = () => {
+      const item = document.createElement('li');
+      item.className = 'page-item disabled';
+
+      const span = document.createElement('span');
+      span.className = 'page-link border-0 rounded-3';
+      span.style.color = 'var(--color-text-muted)';
+      span.textContent = '...';
+
+      item.appendChild(span);
+      pagination.appendChild(item);
+    };
+
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(pages, startPage + maxVisible - 1);
+    startPage = Math.max(1, endPage - maxVisible + 1);
+
     appendItem('<i class="bi bi-chevron-right"></i>', currentPage - 1, { disabled: currentPage === 1 });
 
-    for (let pageNumber = 1; pageNumber <= pages; pageNumber += 1) {
+    if (startPage > 1) {
+      appendItem('1', 1);
+      if (startPage > 2) appendEllipsis();
+    }
+
+    for (let pageNumber = startPage; pageNumber <= endPage; pageNumber += 1) {
       appendItem(String(pageNumber), pageNumber, { active: pageNumber === currentPage });
+    }
+
+    if (endPage < pages) {
+      if (endPage < pages - 1) appendEllipsis();
+      appendItem(String(pages), pages);
     }
 
     appendItem('<i class="bi bi-chevron-left"></i>', currentPage + 1, { disabled: currentPage === pages });
@@ -383,9 +411,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pagination) {
     pagination.addEventListener('click', event => {
       const link = event.target.closest('a[data-page]');
+      event.preventDefault();
       if (!link || link.closest('.disabled')) return;
 
-      event.preventDefault();
       currentPage = parseInt(link.dataset.page, 10);
       applyList();
     });
