@@ -24,43 +24,6 @@ $months_list_ar = array(
     "December" => "ديسمبر"
 );
 
-$status_map = [
-    'completed' => [
-        'class' => 'status-completed',
-        'icon' => 'bi-check-circle-fill',
-        'label' => 'مكتمل'
-    ],
-    'pending' => [
-        'class' => 'status-pending',
-        'icon' => 'bi-clock-fill',
-        'label' => 'قيد الانتظار'
-    ],
-    'processing' => [
-        'class' => 'status-processing',
-        'icon' => 'bi-arrow-repeat',
-        'label' => 'قيد المعالجة'
-    ],
-    'shipped' => [
-        'class' => 'status-shipped',
-        'icon' => 'bi-truck',
-        'label' => 'تم الشحن'
-    ],
-    'cancelled' => [
-        'class' => 'status-cancelled',
-        'icon' => 'bi-x-circle-fill',
-        'label' => 'ملغي'
-    ],
-    'delivered' => [
-        'class' => 'status-completed',
-        'icon' => 'bi-check-circle-fill',
-        'label' => 'تم التوصيل'
-    ],
-    'paid' => [
-        'class' => 'status-processing',
-        'icon' => 'bi-credit-card-fill',
-        'label' => 'مدفوع'
-    ],
-];
 $stmt = $conn->prepare("
     SELECT o.*, COALESCE(items_summary.total_items, 0) AS total_items
     FROM orders o

@@ -1,293 +1,217 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="إدارة الرسائل — عرض وإدارة رسائل الزوار والعملاء.">
-  <title>متجرنا — إدارة الرسائل</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="css/style.css">
-</head>
+<?php
+$page_description = "إدارة الرسائل — عرض وإدارة رسائل الزوار والعملاء.";
+$page_title = "متجرنا — إدارة الرسائل";
+require_once 'config/config.php';
+require_once 'includes/middleware/check-admin.php';
+include 'includes/header.php';
+
+$messages = $conn->prepare("SELECT * FROM contacts ORDER BY is_read ASC");
+$messages->execute();
+$messages = $messages->fetchAll(PDO::FETCH_OBJ);
+
+$unreadCount = $conn->query("SELECT COUNT(*) FROM contacts WHERE is_read = 0")->fetchColumn();
+$totalMessages = count($messages);
+?>
+
 <body>
 
-  <div class="admin-wrapper">
-    <div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;"></div>
-
-    <!-- SIDEBAR -->
-    <aside class="admin-sidebar" id="adminSidebar">
-      <div class="sidebar-brand">
-        <a href="index.php" style="color:inherit;text-decoration:none;"><i class="bi bi-bag-heart"></i> متجر<span>نا</span></a>
+  <?php include 'includes/admin-sidebar.php'; ?>
+  <main class="admin-content admin-messages-page">
+    <div class="admin-header">
+      <div class="admin-message-heading">
+        <button class="btn btn-outline-custom admin-sidebar-toggle d-lg-none" id="sidebarToggle">
+          <i class="bi bi-list"></i>
+        </button>
+        <h1>
+          إدارة الرسائل
+          <span class="status-badge status-unread messages-count-badge"><?= $unreadCount ?> جديدة</span>
+        </h1>
       </div>
-      <ul class="sidebar-nav">
-        <li class="nav-label">القائمة الرئيسية</li>
-        <li class="nav-item"><a href="admin_dashboard.php" class="nav-link"><i class="bi bi-grid-1x2"></i> لوحة التحكم</a></li>
-        <li class="nav-item"><a href="admin_products.php" class="nav-link"><i class="bi bi-box-seam"></i> المنتجات</a></li>
-        <li class="nav-item"><a href="admin_orders.php" class="nav-link"><i class="bi bi-receipt"></i> الطلبات</a></li>
-        <li class="nav-item"><a href="admin_users.php" class="nav-link"><i class="bi bi-people"></i> المستخدمين</a></li>
-        <li class="nav-item"><a href="admin_messages.php" class="nav-link active"><i class="bi bi-chat-dots"></i> الرسائل</a></li>
-        <li class="nav-label" style="margin-top:var(--space-lg);">إعدادات</li>
-        <li class="nav-item"><a href="admin_settings.php" class="nav-link"><i class="bi bi-gear"></i> إعدادات الموقع</a></li>
-        <li class="nav-item"><a href="index.php" class="nav-link"><i class="bi bi-house"></i> عرض الموقع</a></li>
-        <li class="nav-item"><a href="auth/logout.php" class="nav-link" style="color:var(--color-danger);"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
-      </ul>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="admin-content">
-      <div class="admin-header">
-        <div>
-          <button class="btn btn-outline-custom d-lg-none" id="sidebarToggle" style="padding:0.4rem 0.7rem;">
-            <i class="bi bi-list" style="font-size:1.25rem;"></i>
-          </button>
-          <h1 style="display:inline-block;vertical-align:middle;margin-right:var(--space-sm);">
-            إدارة الرسائل
-            <span class="status-badge status-pending" style="font-size:var(--font-size-xs);vertical-align:middle;">18 جديدة</span>
-          </h1>
-        </div>
-        <button class="btn btn-outline-custom btn-sm-custom" id="markAllReadBtn">
+      <form action="actions/mark-all-read.php" method="POST" class="m-0">
+        <button class="btn btn-outline-custom btn-sm-custom" type="submit" name="mark-all-read" id="markAllReadBtn">
           <i class="bi bi-check-all me-1"></i>تحديد الكل كمقروء
         </button>
-      </div>
+      </form>
+    </div>
 
-      <!-- Filters -->
-      <div class="card-custom" style="padding:var(--space-lg);border-radius:var(--radius-lg);margin-bottom:var(--space-xl);">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-5">
-            <label class="form-label-custom">بحث</label>
-            <input type="text" class="form-control form-control-custom" placeholder="الاسم أو البريد أو الموضوع ..." id="adminMsgSearch">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label-custom">الحالة</label>
-            <select class="form-select form-select-custom" id="adminMsgStatus">
-              <option>الكل</option>
-              <option>غير مقروءة</option>
-              <option>مقروءة</option>
-            </select>
-          </div>
-          <div class="col-md-2">
-            <label class="form-label-custom">التاريخ</label>
-            <input type="date" class="form-control form-control-custom" id="adminMsgDate">
-          </div>
-          <div class="col-md-2">
-            <button class="btn btn-outline-custom w-100" id="adminMsgFilterBtn">
-              <i class="bi bi-funnel me-1"></i>تصفية
-            </button>
-          </div>
+    <div class="card-custom messages-toolbar">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label-custom">بحث</label>
+          <input type="text" class="form-control form-control-custom" placeholder="الاسم أو البريد أو الموضوع ..." id="adminMsgSearch">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label-custom">الحالة</label>
+          <select class="form-select form-select-custom" id="adminMsgStatus">
+            <option>الكل</option>
+            <option>غير مقروءة</option>
+            <option>مقروءة</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label-custom">التاريخ</label>
+          <input type="date" class="form-control form-control-custom" id="adminMsgDate">
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-custom w-100" id="adminMsgFilterBtn">
+            <i class="bi bi-funnel me-1"></i>تصفية
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- Messages Table -->
-      <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">
-        <div class="table-responsive">
-          <table class="table table-custom mb-0" id="adminMessagesTable">
-            <thead>
+    <div class="card-custom messages-table-card">
+      <div class="table-responsive">
+        <table class="table table-custom messages-table mb-0" id="adminMessagesTable">
+          <thead>
+            <tr>
+              <th class="message-select-cell">
+                <input class="form-check-input" type="checkbox" id="selectAllMsgs">
+              </th>
+              <th>المرسل</th>
+              <th>البريد الإلكتروني</th>
+              <th>الموضوع</th>
+              <th>مقتطف الرسالة</th>
+              <th>التاريخ</th>
+              <th>الحالة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if ($totalMessages === 0) : ?>
               <tr>
-                <th style="width:4%;">
-                  <input class="form-check-input" type="checkbox" id="selectAllMsgs" style="cursor:pointer;">
-                </th>
-                <th>المرسل</th>
-                <th>البريد الإلكتروني</th>
-                <th>الموضوع</th>
-                <th>مقتطف الرسالة</th>
-                <th>التاريخ</th>
-                <th>الحالة</th>
-                <th>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Unread Message 1 -->
-              <tr style="background-color:var(--color-primary-ultra-light);">
-                <td><input class="form-check-input" type="checkbox" style="cursor:pointer;"></td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);background:var(--color-primary-light);">ع</div>
-                    <strong>عبدالله أحمد</strong>
-                  </div>
-                </td>
-                <td>abdullah@mail.com</td>
-                <td><strong>استفسار عن الشحن</strong></td>
-                <td style="color:var(--color-text-secondary);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  أود معرفة تفاصيل الشحن للمنطقة الشرقية وهل يمكن ...
-                </td>
-                <td style="white-space:nowrap;">21 مايو 2026</td>
-                <td><span class="status-badge status-pending"><i class="bi bi-envelope-fill"></i> غير مقروءة</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-success-soft" title="تحديد كمقروء"><i class="bi bi-check2"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
+                <td colspan="8" class="messages-empty">
+                  <div class="messages-empty-icon"><i class="bi bi-inbox"></i></div>
+                  <strong>لا توجد رسائل حالياً</strong>
+                  <span>ستظهر رسائل العملاء والزوار هنا فور وصولها.</span>
                 </td>
               </tr>
-              <!-- Unread Message 2 -->
-              <tr style="background-color:var(--color-primary-ultra-light);">
-                <td><input class="form-check-input" type="checkbox" style="cursor:pointer;"></td>
+            <?php endif; ?>
+            <?php foreach ($messages as $message) : ?>
+              <?php
+              $messageId = $message->id ?? '';
+              $messageName = (string) ($message->name ?? '');
+              $messageEmail = (string) ($message->email ?? '');
+              $messageSubject = trim((string) ($message->subject ?? ''));
+              $messageSubject = $messageSubject !== '' ? $messageSubject : 'بدون موضوع';
+              $messageBody = (string) ($message->message ?? '');
+              $messageInitial = function_exists('mb_substr') ? mb_substr($messageName, 0, 1, 'UTF-8') : substr($messageName, 0, 1);
+              $messageInitial = $messageInitial !== '' ? $messageInitial : '؟';
+              $messageTimestamp = !empty($message->submitted_at) ? strtotime($message->submitted_at) : false;
+              $messageDate = $messageTimestamp ? date('Y-m-d - h:i A', $messageTimestamp) : 'غير محدد';
+              $messageDateValue = $messageTimestamp ? date('Y-m-d', $messageTimestamp) : '';
+              $isRead = (bool) ($message->is_read ?? false);
+              $messageStatus = $isRead ? 'مقروءة' : 'غير مقروءة';
+              $rowSearch = strtolower($messageName . ' ' . $messageEmail . ' ' . $messageSubject . ' ' . $messageBody);
+              ?>
+              <tr class="message-row <?= $isRead ? 'message-row-read' : 'message-row-unread'; ?>"
+                data-message-status="<?= $isRead ? 'read' : 'unread'; ?>"
+                data-message-date="<?= htmlspecialchars($messageDateValue, ENT_QUOTES, 'UTF-8'); ?>"
+                data-message-search="<?= htmlspecialchars($rowSearch, ENT_QUOTES, 'UTF-8'); ?>">
+                <td class="message-select-cell"><input class="form-check-input message-checkbox" type="checkbox"></td>
                 <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);background:var(--color-primary-light);">ل</div>
-                    <strong>ليلى محمد</strong>
+                  <div class="message-sender">
+                    <div class="profile-avatar message-avatar <?= $isRead ? '' : 'message-avatar-unread'; ?>"><?= htmlspecialchars($messageInitial, ENT_QUOTES, 'UTF-8') ?></div>
+                    <strong class="message-sender-name"><?= htmlspecialchars($messageName, ENT_QUOTES, 'UTF-8') ?></strong>
                   </div>
                 </td>
-                <td>laila@mail.com</td>
-                <td><strong>مشكلة في الطلب</strong></td>
-                <td style="color:var(--color-text-secondary);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  طلبي رقم #ORD-1040 وصل بمنتج مختلف عن الذي طلبته ...
-                </td>
-                <td style="white-space:nowrap;">21 مايو 2026</td>
-                <td><span class="status-badge status-pending"><i class="bi bi-envelope-fill"></i> غير مقروءة</span></td>
+                <td><a class="message-email" href="mailto:<?= htmlspecialchars($messageEmail, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($messageEmail, ENT_QUOTES, 'UTF-8') ?></a></td>
+                <td><strong class="message-subject"><?= htmlspecialchars($messageSubject, ENT_QUOTES, 'UTF-8') ?></strong></td>
+                <td><span class="message-preview"><?= htmlspecialchars($messageBody, ENT_QUOTES, 'UTF-8') ?></span></td>
+                <td><span class="message-date"><?= htmlspecialchars($messageDate, ENT_QUOTES, 'UTF-8') ?></span></td>
+                <td><span class="status-badge <?= $isRead ? "status-read" : "status-unread"; ?>"><i class="bi <?= $isRead ? 'bi-envelope-open-fill' : 'bi-envelope-fill'; ?>"></i> <?= $messageStatus ?></span></td>
                 <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-success-soft" title="تحديد كمقروء"><i class="bi bi-check2"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <!-- Unread Message 3 -->
-              <tr style="background-color:var(--color-primary-ultra-light);">
-                <td><input class="form-check-input" type="checkbox" style="cursor:pointer;"></td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);background:var(--color-primary-light);">ر</div>
-                    <strong>راشد سعيد</strong>
-                  </div>
-                </td>
-                <td>rashed@mail.com</td>
-                <td><strong>اقتراح تحسين</strong></td>
-                <td style="color:var(--color-text-secondary);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  أقترح إضافة خاصية تتبع الطلبات بشكل مفصل حتى يتمكن ...
-                </td>
-                <td style="white-space:nowrap;">20 مايو 2026</td>
-                <td><span class="status-badge status-pending"><i class="bi bi-envelope-fill"></i> غير مقروءة</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-success-soft" title="تحديد كمقروء"><i class="bi bi-check2"></i></button>
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
+                  <div class="message-actions">
+                    <button class="btn btn-outline-custom message-action-btn"
+                      type="button"
+                      title="عرض الرسالة"
+                      data-bs-toggle="modal"
+                      data-bs-target="#messageModal"
+                      data-message-name="<?= htmlspecialchars($messageName, ENT_QUOTES, 'UTF-8') ?>"
+                      data-message-email="<?= htmlspecialchars($messageEmail, ENT_QUOTES, 'UTF-8') ?>"
+                      data-message-subject="<?= htmlspecialchars($messageSubject, ENT_QUOTES, 'UTF-8') ?>"
+                      data-message-body="<?= htmlspecialchars($messageBody, ENT_QUOTES, 'UTF-8') ?>"
+                      data-message-date="<?= htmlspecialchars($messageDate, ENT_QUOTES, 'UTF-8') ?>"
+                      data-message-initial="<?= htmlspecialchars($messageInitial, ENT_QUOTES, 'UTF-8') ?>">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <?php if (!$isRead) : ?>
+                      <form action="actions/message_handler.php?make=read" method="POST">
+                        <input type="hidden" name="id" value="<?= htmlspecialchars((string) $messageId, ENT_QUOTES, 'UTF-8') ?>">
+                        <button class="btn btn-success-soft message-action-btn" title="تحديد كمقروء"><i class="bi bi-check2"></i></button>
+                      </form>
+                    <?php else : ?>
+                      <form action="actions/message_handler.php?make=unread" method="POST">
+                        <input type="hidden" name="id" value="<?= htmlspecialchars((string) $messageId, ENT_QUOTES, 'UTF-8') ?>">
+                        <button class="btn btn-make-read message-action-btn" title="تحديد كغير مقروء"><i class="bi bi-envelope"></i></button>
+                      </form>
+                    <?php endif; ?>
+                    <form action="actions/delete-message.php" method="POST">
+                      <input type="hidden" name="id" value="<?= htmlspecialchars((string) $messageId, ENT_QUOTES, 'UTF-8') ?>">
+                      <button class="btn btn-danger-soft message-action-btn" title="حذف"><i class="bi bi-trash3"></i></button>
+                    </form>
                   </div>
                 </td>
               </tr>
-              <!-- Read Message 1 -->
-              <tr>
-                <td><input class="form-check-input" type="checkbox" style="cursor:pointer;"></td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);">م</div>
-                    <span>محمد خالد</span>
-                  </div>
-                </td>
-                <td>m.khaled@mail.com</td>
-                <td>شكر وتقدير</td>
-                <td style="color:var(--color-text-muted);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  أشكركم على الخدمة الممتازة والشحن السريع جداً ...
-                </td>
-                <td style="white-space:nowrap;">19 مايو 2026</td>
-                <td><span class="status-badge status-completed"><i class="bi bi-envelope-open"></i> مقروءة</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <!-- Read Message 2 -->
-              <tr>
-                <td><input class="form-check-input" type="checkbox" style="cursor:pointer;"></td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);">هـ</div>
-                    <span>هند عبدالعزيز</span>
-                  </div>
-                </td>
-                <td>hind@mail.com</td>
-                <td>استفسار عن المقاسات</td>
-                <td style="color:var(--color-text-muted);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  هل يتوفر لديكم جدول مقاسات للأحذية الرياضية ...
-                </td>
-                <td style="white-space:nowrap;">18 مايو 2026</td>
-                <td><span class="status-badge status-completed"><i class="bi bi-envelope-open"></i> مقروءة</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-              <!-- Read Message 3 -->
-              <tr>
-                <td><input class="form-check-input" type="checkbox" style="cursor:pointer;"></td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);">ص</div>
-                    <span>صالح العمري</span>
-                  </div>
-                </td>
-                <td>saleh@mail.com</td>
-                <td>طلب توفير منتج</td>
-                <td style="color:var(--color-text-muted);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                  هل بالإمكان توفير سماعات من نوع AirPods Max ...
-                </td>
-                <td style="white-space:nowrap;">17 مايو 2026</td>
-                <td><span class="status-badge status-completed"><i class="bi bi-envelope-open"></i> مقروءة</span></td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <button class="btn btn-danger-soft" title="حذف"><i class="bi bi-trash3"></i></button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            <?php endforeach; ?>
+            <tr class="messages-no-results d-none">
+              <td colspan="8" class="messages-empty">
+                <div class="messages-empty-icon"><i class="bi bi-search"></i></div>
+                <strong>لا توجد نتائج مطابقة</strong>
+                <span>جرّب تعديل البحث أو فلتر الحالة والتاريخ.</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </div>
 
-      <!-- Pagination -->
-      <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
-        <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عرض 1 إلى 6 من 45 رسالة</p>
-        <nav>
-          <ul class="pagination mb-0" style="gap:4px;">
-            <li class="page-item disabled"><a class="page-link border-0 rounded-3" href="#" style="color:var(--color-text-muted);"><i class="bi bi-chevron-right"></i></a></li>
-            <li class="page-item active"><a class="page-link border-0 rounded-3" href="#" style="background:var(--color-primary);border-color:var(--color-primary);">1</a></li>
-            <li class="page-item"><a class="page-link border-0 rounded-3" href="#" style="color:var(--color-text-secondary);">2</a></li>
-            <li class="page-item"><a class="page-link border-0 rounded-3" href="#" style="color:var(--color-text-secondary);"><i class="bi bi-chevron-left"></i></a></li>
-          </ul>
-        </nav>
+    <div class="messages-footer">
+      <p class="text-muted-custom mb-0">عرض <?= $totalMessages ?> رسالة</p>
+      <div class="messages-footer-meta">
+        <span><i class="bi bi-envelope-fill"></i><?= $unreadCount ?> غير مقروءة</span>
+        <span><i class="bi bi-envelope-open-fill"></i><?= max($totalMessages - (int) $unreadCount, 0) ?> مقروءة</span>
       </div>
-    </main>
+    </div>
+  </main>
   </div>
 
   <!-- MESSAGE DETAIL MODAL -->
   <div class="modal fade" id="messageModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="border:none;border-radius:var(--radius-xl);">
-        <div class="modal-header" style="border-bottom:1px solid var(--color-border-light);padding:var(--space-xl);">
-          <h5 class="modal-title" style="font-weight:700;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content message-modal">
+        <div class="modal-header message-modal-header">
+          <h5 class="modal-title">
             <i class="bi bi-envelope-open ms-2 text-primary-custom"></i>تفاصيل الرسالة
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body" style="padding:var(--space-xl);">
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div class="d-flex align-items-center gap-2">
-                <div class="profile-avatar" style="width:40px;height:40px;font-size:var(--font-size-sm);">ع</div>
-                <div>
-                  <h6 style="font-weight:600;margin-bottom:0;">عبدالله أحمد</h6>
-                  <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">abdullah@mail.com</span>
-                </div>
+        <div class="modal-body message-modal-body-wrap">
+          <div class="message-modal-meta">
+            <div class="message-modal-sender">
+              <div class="profile-avatar message-modal-avatar" id="messageModalAvatar">؟</div>
+              <div>
+                <h6 id="messageModalName">اسم المرسل</h6>
+                <a href="#" id="messageModalEmail">email@example.com</a>
               </div>
-              <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">21 مايو 2026</span>
             </div>
+            <span id="messageModalDate" class="message-modal-date">غير محدد</span>
           </div>
-          <div style="border-top:1px solid var(--color-border-light);padding-top:var(--space-lg);">
-            <h6 style="font-weight:600;margin-bottom:var(--space-sm);">الموضوع: استفسار عن الشحن</h6>
-            <p style="font-size:var(--font-size-sm);color:var(--color-text-secondary);line-height:1.9;">
-              أود معرفة تفاصيل الشحن للمنطقة الشرقية وهل يمكن توفير شحن سريع خلال يومين؟ وما هي تكلفة الشحن للطلبات التي تقل عن 200 ريال؟ شكراً لكم.
+          <div class="message-modal-content">
+            <h6 class="message-modal-subject">
+              الموضوع:
+              <span id="messageModalSubject">بدون موضوع</span>
+            </h6>
+            <p id="messageModalBody" class="message-modal-body">
+              اختر رسالة من الجدول لعرض تفاصيلها.
             </p>
           </div>
         </div>
-        <div class="modal-footer" style="border-top:1px solid var(--color-border-light);padding:var(--space-lg) var(--space-xl);">
-          <button type="button" class="btn btn-danger-soft" data-bs-dismiss="modal">
-            <i class="bi bi-trash3 me-1"></i>حذف
-          </button>
-          <button type="button" class="btn btn-primary-custom">
+        <div class="modal-footer message-modal-footer">
+          <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">إغلاق</button>
+          <a class="btn btn-primary-custom" href="#" id="messageModalReply">
             <i class="bi bi-reply me-1"></i>رد عبر البريد
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -295,5 +219,87 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var messageModal = document.getElementById('messageModal');
+      var searchInput = document.getElementById('adminMsgSearch');
+      var statusSelect = document.getElementById('adminMsgStatus');
+      var dateInput = document.getElementById('adminMsgDate');
+      var filterBtn = document.getElementById('adminMsgFilterBtn');
+      var selectAll = document.getElementById('selectAllMsgs');
+      var messageRows = Array.prototype.slice.call(document.querySelectorAll('.message-row'));
+      var noResultsRow = document.querySelector('.messages-no-results');
+
+      if (messageModal) {
+        messageModal.addEventListener('show.bs.modal', function(event) {
+          var button = event.relatedTarget;
+          if (!button) return;
+
+          var name = button.getAttribute('data-message-name') || 'اسم المرسل';
+          var email = button.getAttribute('data-message-email') || '';
+          var subject = button.getAttribute('data-message-subject') || 'بدون موضوع';
+          var body = button.getAttribute('data-message-body') || '';
+          var date = button.getAttribute('data-message-date') || 'غير محدد';
+          var initial = button.getAttribute('data-message-initial') || '؟';
+
+          messageModal.querySelector('#messageModalAvatar').textContent = initial;
+          messageModal.querySelector('#messageModalName').textContent = name;
+          messageModal.querySelector('#messageModalEmail').textContent = email || 'بدون بريد';
+          messageModal.querySelector('#messageModalEmail').href = email ? 'mailto:' + email : '#';
+          messageModal.querySelector('#messageModalDate').textContent = date;
+          messageModal.querySelector('#messageModalSubject').textContent = subject;
+          messageModal.querySelector('#messageModalBody').textContent = body;
+          messageModal.querySelector('#messageModalReply').href = email ? 'mailto:' + email + '?subject=' + encodeURIComponent('RE: ' + subject) : '#';
+        });
+      }
+
+      function applyMessageFilters() {
+        var query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        var statusValue = statusSelect ? statusSelect.value : 'الكل';
+        var dateValue = dateInput ? dateInput.value : '';
+        var visibleCount = 0;
+
+        messageRows.forEach(function(row) {
+          var matchesSearch = !query || row.getAttribute('data-message-search').indexOf(query) !== -1;
+          var matchesStatus = statusValue === 'الكل' ||
+            (statusValue === 'غير مقروءة' && row.getAttribute('data-message-status') === 'unread') ||
+            (statusValue === 'مقروءة' && row.getAttribute('data-message-status') === 'read');
+          var matchesDate = !dateValue || row.getAttribute('data-message-date') === dateValue;
+          var isVisible = matchesSearch && matchesStatus && matchesDate;
+
+          row.classList.toggle('d-none', !isVisible);
+          if (isVisible) visibleCount++;
+        });
+
+        if (noResultsRow) {
+          noResultsRow.classList.toggle('d-none', visibleCount !== 0 || messageRows.length === 0);
+        }
+      }
+
+      if (filterBtn) {
+        filterBtn.addEventListener('click', function(event) {
+          event.preventDefault();
+          applyMessageFilters();
+        });
+      }
+
+      [searchInput, statusSelect, dateInput].forEach(function(control) {
+        if (control) {
+          control.addEventListener('input', applyMessageFilters);
+          control.addEventListener('change', applyMessageFilters);
+        }
+      });
+
+      if (selectAll) {
+        selectAll.addEventListener('change', function() {
+          document.querySelectorAll('.message-checkbox').forEach(function(checkbox) {
+            var row = checkbox.closest('.message-row');
+            checkbox.checked = selectAll.checked && row && !row.classList.contains('d-none');
+          });
+        });
+      }
+    });
+  </script>
 </body>
+
 </html>

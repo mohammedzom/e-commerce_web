@@ -13,45 +13,6 @@ $totalUsers = $conn->query("SELECT COUNT(*) FROM users")->fetchColumn();
 
 $totalMessages = $conn->query("SELECT COUNT(*) FROM contacts WHERE is_read = false")->fetchColumn();
 
-
-
-$status_map = [
-  'completed' => [
-    'class' => 'status-completed',
-    'icon' => 'bi-check-circle-fill',
-    'label' => 'مكتمل'
-  ],
-  'pending' => [
-    'class' => 'status-pending',
-    'icon' => 'bi-clock-fill',
-    'label' => 'قيد الانتظار'
-  ],
-  'processing' => [
-    'class' => 'status-processing',
-    'icon' => 'bi-arrow-repeat',
-    'label' => 'قيد المعالجة'
-  ],
-  'shipped' => [
-    'class' => 'status-shipped',
-    'icon' => 'bi-truck',
-    'label' => 'تم الشحن'
-  ],
-  'cancelled' => [
-    'class' => 'status-cancelled',
-    'icon' => 'bi-x-circle-fill',
-    'label' => 'ملغي'
-  ],
-  'delivered' => [
-    'class' => 'status-completed',
-    'icon' => 'bi-check-circle-fill',
-    'label' => 'تم التوصيل'
-  ],
-  'paid' => [
-    'class' => 'status-processing',
-    'icon' => 'bi-credit-card-fill',
-    'label' => 'مدفوع'
-  ],
-];
 $orders = $conn->prepare("
   SELECT 
     o.*, 
@@ -216,7 +177,6 @@ $topProducts = $stmt->fetchAll(PDO::FETCH_OBJ);
           المنتجات الأكثر مبيعاً
         </h5>
         <div class="d-flex flex-column gap-3">
-          <!-- Top Product 1 -->
           <?php foreach ($topProducts as $product): ?>
             <div class="d-flex align-items-center gap-3">
               <div style="width:48px;height:48px;border-radius:var(--radius-md);overflow:hidden;background:var(--color-bg-alt);flex-shrink:0;">
