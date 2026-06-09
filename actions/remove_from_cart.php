@@ -8,10 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['cart_id'])) {
 
     $cart_item = $conn->prepare("DELETE FROM cart_items WHERE cart_id = :cart_item_id AND user_id = :user_id");
     $cart_item->execute(['cart_item_id' => $cart_item_id, 'user_id' => $user_id]);
-    
-    header('Location: ' . APPURL . 'cart.php');
+
+    echo "<script> alert('تم الحذف'); window.location.href='" . APPURL . "cart.php'; </script>";
     exit;
 } else {
-    header('Location: ' . APPURL . 'cart.php');
+    echo "<script> alert('حدث خطأ'); window.location.href='" . APPURL . "cart.php'; </script>";
     exit;
 }

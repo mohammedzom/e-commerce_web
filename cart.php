@@ -114,11 +114,19 @@ foreach ($cart_items as $cart_item) {
             </table>
           </div>
 
-          <div class="mt-3">
+          <div class="mt-3 d-flex flex-wrap gap-2">
             <a href="products.php" class="btn btn-outline-custom">
               <i class="bi bi-arrow-right me-2"></i>
               متابعة التسوق
             </a>
+            <?php if ($count_cart_items > 0): ?>
+              <form action="<?php echo APPURL; ?>actions/clear_cart.php" method="POST" onsubmit="return confirm('هل أنت متأكد من إفراغ السلة؟');">
+                <button type="submit" name="clear-cart" class="btn btn-danger-soft">
+                  <i class="bi bi-trash3 me-2"></i>
+                  إفراغ السلة
+                </button>
+              </form>
+            <?php endif; ?>
           </div>
         </div>
 
