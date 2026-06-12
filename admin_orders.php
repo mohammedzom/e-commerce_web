@@ -56,32 +56,6 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
       </div>
     </div>
 
-    <div class="card-custom" style="padding:var(--space-lg);border-radius:var(--radius-lg);margin-bottom:var(--space-xl);">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-          <label class="form-label-custom">بحث</label>
-          <input type="text" class="form-control form-control-custom" placeholder="رقم الطلب أو اسم العميل ..." id="adminOrderSearch">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label-custom">الحالة</label>
-          <select class="form-select form-select-custom" id="adminOrderStatus">
-            <option value="">الكل</option>
-            <?php foreach ($status_map as $status_key => $status): ?>
-              <option value="<?php echo $status_key; ?>"><?php echo htmlspecialchars($status['label'], ENT_QUOTES, 'UTF-8'); ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label-custom">التاريخ</label>
-          <input type="date" class="form-control form-control-custom" id="adminOrderDate">
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-outline-custom w-100" id="adminOrderFilterBtn">
-            <i class="bi bi-funnel me-1"></i>تصفية
-          </button>
-        </div>
-      </div>
-    </div>
 
     <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">
       <div class="table-responsive">
@@ -130,13 +104,18 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
                 </td>
                 <td data-label="الإجراءات">
                   <div class="d-flex gap-1 justify-content-end">
-                    <select class="form-select form-select-custom" style="width:auto;min-width:130px;font-size:var(--font-size-xs);padding:0.3rem 0.6rem;">
-                      <?php foreach ($status_map as $status_key => $status): ?>
-                        <option value="<?= htmlspecialchars($status_key) ?>" <?= $order->status === $status_key ? 'selected' : '' ?>>
-                          <?= htmlspecialchars($status['label']) ?>
-                        </option>
-                      <?php endforeach; ?>
-                    </select>
+                    <form action="<?= APPURL ?>actions/update_order_status.php" method="POST" style="margin:0;">
+                      <input type="hidden" name="order_id" value="<?= $order->order_id ?>">
+                      <input type="hidden" name="page" value="<?= $current_page ?>">
+                      <select name="status" class="form-select form-select-custom" style="width:auto;min-width:130px;font-size:var(--font-size-xs);padding:0.3rem 0.6rem;" onchange="this.form.submit()">
+                        <?php foreach ($status_map as $status_key => $status): ?>
+                          <option value="<?= htmlspecialchars($status_key) ?>" <?= $order->status === $status_key ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($status['label']) ?>
+                          </option>
+                        <?php endforeach; ?>
+                      </select>
+                    </form>
+                    <a class="btn btn-outline-custom btn-sm-custom" href="<?= APPURL ?>order_detail.php?id=<?= $order->order_id ?>" title="عرض التفاصيل"><i class="bi bi-eye"></i></a>
                   </div>
                 </td>
               </tr>

@@ -9,25 +9,6 @@ $products = $products->fetchAll(PDO::FETCH_OBJ);
 
 
 
-if (isset($_POST['subscribe'])) {
-  $email = $_POST['email'];
-
-  if (empty($email)) {
-    echo "<script>alert('البريد الإلكتروني مطلوب')</script>";
-  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo "<script>alert('البريد الإلكتروني غير صالح')</script>";
-  } else {
-    $checkEmail = $conn->prepare("SELECT email FROM newsletter_subscribers WHERE email = :email");
-    $checkEmail->execute(['email' => $email]);
-    if ($checkEmail->rowCount() > 0) {
-      echo "<script>alert('البريد الإلكتروني موجود بالفعل!')</script>";
-    } else {
-      $stmt = $conn->prepare("INSERT INTO newsletter_subscribers (email) VALUES (:email)");
-      $stmt->execute(['email' => $email]);
-      echo "<script>alert('تم الاشتراك بنجاح!')</script>";
-    }
-  }
-}
 
 if (isset($_GET['search'])) {
   $search = $_GET['search'];
@@ -125,29 +106,5 @@ foreach ($categories as $category) {
           </a>
         </div>
       </div>
-  </section>
-
-
-  <section class="section-padding" style="background-color: var(--color-white);" id="cta">
-    <div class="container">
-      <div class="text-center reveal" style="max-width: 560px; margin: 0 auto;">
-        <div class="feature-icon mx-auto mb-4">
-          <i class="bi bi-envelope-heart"></i>
-        </div>
-        <h2 class="section-title" style="font-size: var(--font-size-xl);">انضم لقائمتنا البريدية</h2>
-        <p class="text-muted-custom mb-4" style="font-size: var(--font-size-sm);">
-          اشترك ليصلك كل جديد من العروض والخصومات الحصرية
-        </p>
-        <div class="hero-search mx-auto" style="max-width: 400px;">
-          <form action="" method="POST">
-            <input type="email" placeholder="بريدك الإلكتروني" id="newsletterEmail" name="email" required>
-            <button type="submit" name="subscribe" class="search-btn" id="newsletterBtn">
-              <i class="bi bi-send"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <?php include 'includes/footer.php'; ?>

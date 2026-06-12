@@ -31,36 +31,6 @@ $users = $users->fetchAll(PDO::FETCH_OBJ);
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="card-custom" style="padding:var(--space-lg);border-radius:var(--radius-lg);margin-bottom:var(--space-xl);">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-5">
-          <label class="form-label-custom">بحث</label>
-          <input type="text" class="form-control form-control-custom" placeholder="اسم المستخدم أو البريد الإلكتروني ..." id="adminUserSearch">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label-custom">الصلاحية</label>
-          <select class="form-select form-select-custom" id="adminUserRole">
-            <option>الكل</option>
-            <option>مدير</option>
-            <option>عميل</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label-custom">الحالة</label>
-          <select class="form-select form-select-custom" id="adminUserStatus">
-            <option>الكل</option>
-            <option>نشط</option>
-            <option>معطل</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-outline-custom w-100" id="adminUserFilterBtn">
-            <i class="bi bi-funnel me-1"></i>تصفية
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Desktop Table -->
     <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">
@@ -118,18 +88,13 @@ $users = $users->fetchAll(PDO::FETCH_OBJ);
       </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
-      <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);" id="adminUsersPaginationInfo">عرض 1 إلى 6 من 6 مستخدم</p>
-      <nav>
-        <ul class="pagination mb-0" id="adminUsersPagination" style="gap:4px;"></ul>
-      </nav>
-    </div>
+
   </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="<?php echo APPURL; ?>js/main.js"></script>
-  <script src="<?php echo APPURL; ?>js/admin_users.js"></script>
+
 </body>
 
 </html>

@@ -80,38 +80,6 @@ $start_page = max(1, $end_page - $max_visible + 1);
       </div>
     <?php endif; ?>
 
-    <div class="card-custom" style="padding:var(--space-lg);border-radius:var(--radius-lg);margin-bottom:var(--space-xl);">
-      <div class="row g-3 align-items-end">
-        <div class="col-md-5">
-          <label class="form-label-custom">بحث</label>
-          <input type="text" class="form-control form-control-custom" placeholder="ابحث عن منتج ..." id="adminProductSearch">
-        </div>
-        <div class="col-md-3">
-          <label class="form-label-custom">التصنيف</label>
-          <select class="form-select form-select-custom" id="adminProductCategory">
-            <option>الكل</option>
-            <option>إلكترونيات</option>
-            <option>إكسسوارات</option>
-            <option>أحذية</option>
-            <option>حقائب</option>
-            <option>عطور</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label-custom">الحالة</label>
-          <select class="form-select form-select-custom" id="adminProductStatus">
-            <option>الكل</option>
-            <option>متوفر</option>
-            <option>نفذ</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-outline-custom w-100" id="adminProductFilterBtn">
-            <i class="bi bi-funnel me-1"></i>تصفية
-          </button>
-        </div>
-      </div>
-    </div>
 
     <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">
       <div class="table-responsive">

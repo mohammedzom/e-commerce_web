@@ -10,60 +10,32 @@ if (isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $ip_address = $_SERVER['REMOTE_ADDR'];
+  if (empty($_POST['email']) or empty($_POST['password'])) {
+    $error = 'الرجاء ملء جميع الحقول';
+  } else {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-  $check_attempts = $conn->prepare("SELECT attempts, last_attempt FROM login_attempts WHERE ip_address = :ip");
-  $check_attempts->execute(['ip' => $ip_address]);
-  $attempt_data = $check_attempts->fetch(PDO::FETCH_OBJ);
-
-  if ($attempt_data && $attempt_data->attempts >= 3) {
-    $time_diff = time() - strtotime($attempt_data->last_attempt);
-    if ($time_diff < 3600) {
-      $error = 'لقد تجاوزت الحد المسموح من المحاولات. الرجاء المحاولة بعد ساعة.';
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $error = 'الرجاء كتابة البريد الإلكتروني بشكل صحيح';
     } else {
-      $conn->prepare("UPDATE login_attempts SET attempts = 0 WHERE ip_address = :ip")->execute(['ip' => $ip_address]);
-      $attempt_data->attempts = 0;
-    }
-  }
+      $login = $conn->prepare("SELECT * FROM users WHERE email = :email");
+      $login->execute(['email' => $email]);
+      $fetch = $login->fetch(PDO::FETCH_OBJ);
 
-  if (empty($error)) {
-    if (empty($_POST['email']) or empty($_POST['password'])) {
-      $error = 'الرجاء ملء جميع الحقول';
-    } else {
-      $email = trim($_POST['email']);
-      $password = trim($_POST['password']);
+      if ($login->rowCount() > 0 && password_verify($password, $fetch->password)) {
+        $_SESSION['full_name'] = $fetch->full_name;
+        $_SESSION['user_id']   = $fetch->user_id;
+        $_SESSION['role']      = $fetch->role;
 
-      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'الرجاء كتابة البريد الإلكتروني بشكل صحيح';
-      } else {
-        $login = $conn->prepare("SELECT * FROM users WHERE email = :email");
-        $login->execute(['email' => $email]);
-        $fetch = $login->fetch(PDO::FETCH_OBJ);
-
-        if ($login->rowCount() > 0 && password_verify($password, $fetch->password)) {
-          $conn->prepare("DELETE FROM login_attempts WHERE ip_address = :ip")
-          ->execute(['ip' => $ip_address]);
-
-          $_SESSION['full_name'] = $fetch->full_name;
-          $_SESSION['user_id']   = $fetch->user_id;
-          $_SESSION['role']      = $fetch->role;
-
-          if ($fetch->role == 'admin') {
-              header('Location: ' . APPURL . 'admin_dashboard.php');
-          } else {
-              header('Location: ' . APPURL);
-          }
-          exit;
+        if ($fetch->role == 'admin') {
+            header('Location: ' . APPURL . 'admin_dashboard.php');
         } else {
-          $error = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
-          if ($attempt_data) {
-            $conn->prepare("UPDATE login_attempts SET attempts = attempts + 1, last_attempt = CURRENT_TIMESTAMP WHERE ip_address = :ip")
-            ->execute(['ip' => $ip_address]);
-          } else {
-            $conn->prepare("INSERT INTO login_attempts (ip_address, attempts) VALUES (:ip, 1)")
-            ->execute(['ip' => $ip_address]);
-          }
+            header('Location: ' . APPURL);
         }
+        exit;
+      } else {
+        $error = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
       }
     }
   }

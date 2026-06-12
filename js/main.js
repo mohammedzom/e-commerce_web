@@ -112,17 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  // ---- 5. Remove Item from Cart (Static Demo) ----
-  document.querySelectorAll('.btn-remove-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const row = btn.closest('tr');
-      if (row) {
-        row.style.transition = 'opacity 0.3s ease';
-        row.style.opacity = '0';
-        setTimeout(() => row.remove(), 300);
-      }
-    });
-  });
 
 
   // ---- 6. Toggle Password Visibility ----

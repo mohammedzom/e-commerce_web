@@ -43,7 +43,12 @@ include 'includes/header.php';
                 </div>
                 <div class="col-12">
                   <label class="form-label-custom" for="contactSubject">الموضوع</label>
-                  <input type="text" class="form-control form-control-custom" id="contactSubject" name="subject" placeholder="موضوع الرسالة">
+                  <select class="form-select form-control-custom" id="contactSubject" name="subject" required>
+                    <option value="" disabled selected>اختر الموضوع</option>
+                    <option value="استفسار">استفسار</option>
+                    <option value="شكوى">شكوى</option>
+                    <option value="اقتراح">اقتراح</option>
+                  </select>
                 </div>
                 <div class="col-12">
                   <label class="form-label-custom" for="contactMessage">الرسالة</label>
