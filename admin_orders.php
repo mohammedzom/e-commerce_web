@@ -110,27 +110,34 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
                 'icon' => 'bi-question-circle-fill',
                 'label' => $order->status
               ];
+              $first_letter = mb_substr(trim($order->full_name), 0, 1, 'UTF-8');
               ?>
               <tr>
-                <td><strong>#ORD-<?php echo $order->order_id; ?></strong></td>
-                <td>
+                <td data-label="رقم الطلب"><strong>#ORD-<?= htmlspecialchars($order->order_id) ?></strong></td>
+                <td data-label="العميل">
                   <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);"><?php echo $order->full_name[0]; ?></div>
-                    <span><?php echo $order->full_name; ?></span>
+                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);"><?= htmlspecialchars($first_letter) ?></div>
+                    <span><?= htmlspecialchars($order->full_name) ?></span>
                   </div>
                 </td>
-                <td><?php echo $order->total_items; ?> منتج</td>
-                <td><strong><?php echo $order->total_amount; ?> ش</strong></td>
-                <td><?php echo $order->order_date; ?></td>
-                <td><span class="status-badge <?php echo $order_status['class']; ?>"><i class="bi <?php echo $order_status['icon']; ?>"></i> <?php echo htmlspecialchars($order_status['label'], ENT_QUOTES, 'UTF-8'); ?></span></td>
-                <td>
-                  <select class="form-select form-select-custom" style="width:auto;min-width:130px;font-size:var(--font-size-xs);padding:0.3rem 0.6rem;">
-                    <?php foreach ($status_map as $status_key => $status): ?>
-                      <option value="<?php echo $status_key; ?>" <?php echo $order->status === $status_key ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($status['label'], ENT_QUOTES, 'UTF-8'); ?>
-                      </option>
-                    <?php endforeach; ?>
-                  </select>
+                <td data-label="المنتجات"><?= htmlspecialchars($order->total_items) ?> منتج</td>
+                <td data-label="الإجمالي"><strong><?= htmlspecialchars($order->total_amount) ?> ش</strong></td>
+                <td data-label="التاريخ"><?= htmlspecialchars(date('Y-m-d H:i', strtotime($order->order_date))) ?></td>
+                <td data-label="الحالة">
+                  <span class="status-badge <?= htmlspecialchars($order_status['class']) ?>">
+                    <i class="bi <?= htmlspecialchars($order_status['icon']) ?>"></i> <?= htmlspecialchars($order_status['label']) ?>
+                  </span>
+                </td>
+                <td data-label="الإجراءات">
+                  <div class="d-flex gap-1 justify-content-end">
+                    <select class="form-select form-select-custom" style="width:auto;min-width:130px;font-size:var(--font-size-xs);padding:0.3rem 0.6rem;">
+                      <?php foreach ($status_map as $status_key => $status): ?>
+                        <option value="<?= htmlspecialchars($status_key) ?>" <?= $order->status === $status_key ? 'selected' : '' ?>>
+                          <?= htmlspecialchars($status['label']) ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                  </div>
                 </td>
               </tr>
             <?php endforeach; ?>
