@@ -80,3 +80,4 @@ if ($current_url == 'index.php') {
         </div>
     </div>
 </nav>
+<?php displayFlash(); ?>

@@ -65,3 +65,4 @@ $is_active = function ($page) use ($cur_page) {
             </li>
         </ul>
     </aside>
+<?php displayFlash(); ?>

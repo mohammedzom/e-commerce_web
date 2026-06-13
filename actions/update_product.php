@@ -118,7 +118,12 @@ try {
 
     $result = $conn->prepare($query)->execute($product);
 
-    header('Location: ' . APPURL . 'admin_products.php?status=' . ($result ? 'updated' : 'update_error'));
+    if ($result) {
+        setFlash('تم تحديث المنتج بنجاح', 'success');
+    } else {
+        setFlash('حدث خطأ أثناء تعديل المنتج.', 'error');
+    }
+    header('Location: ' . APPURL . 'admin_products.php');
     exit;
 } catch (Exception $e) {
     redirect_edit_product_error($product_id, 'حدث خطأ أثناء تعديل المنتج.');

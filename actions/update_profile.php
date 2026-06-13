@@ -2,7 +2,6 @@
 
 require __DIR__ . "/../config/config.php";
 require __DIR__ . "/../includes/middleware/check-login.php";
-require_once __DIR__ . "/../includes/toast.php";
 
 if (isset($_POST['update_profile'])) {
 
@@ -13,7 +12,9 @@ if (isset($_POST['update_profile'])) {
     $user_id = $_SESSION['user_id'];
 
     if (empty($name) || empty($email) || empty($phone) || empty($address)) {
-        showToast('يرجى ملء جميع الحقول', APPURL . 'profile.php', 'warning');
+        setFlash('يرجى ملء جميع الحقول', 'warning');
+        header('Location: ' . APPURL . 'profile.php');
+        exit;
     }
 
     $stmt = $conn->prepare("UPDATE users SET full_name = :name, email = :email, phone = :phone, address = :address WHERE user_id = :user_id");
@@ -25,7 +26,9 @@ if (isset($_POST['update_profile'])) {
         'user_id' => $user_id
     ]);
 
-    showToast('تم تحديث الملف الشخصي بنجاح', APPURL . 'profile.php', 'success');
+    setFlash('تم تحديث الملف الشخصي بنجاح', 'success');
+    header('Location: ' . APPURL . 'profile.php');
+    exit;
 } else {
     header('Location: ' . APPURL . 'profile.php');
     exit;

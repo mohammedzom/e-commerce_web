@@ -1,13 +1,14 @@
 <?php
 require_once '../config/config.php';
 require_once '../includes/middleware/check-admin.php';
-require_once __DIR__ . '/../includes/toast.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['del_id'])) {
     $user_id = $_POST['del_id'];
 
     if ($user_id == $_SESSION['user_id']) {
-        showToast('لا يمكنك حذف حسابك الخاص', APPURL . 'admin_users.php', 'warning');
+        setFlash('لا يمكنك حذف حسابك الخاص', 'warning');
+        header('Location: ' . APPURL . 'admin_users.php');
+        exit;
     }
 
     try {
@@ -16,13 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['del_id'])) {
         $has_orders = $check_orders->fetchColumn();
 
         if ($has_orders > 0) {
-            showToast('لا يمكن حذف المستخدم لأنه لديه طلبات سابقة', APPURL . 'admin_users.php', 'warning');
+            setFlash('لا يمكن حذف المستخدم لأنه لديه طلبات سابقة', 'warning');
         } else {
             $stmt = $conn->prepare("DELETE FROM users WHERE user_id = :user_id");
             $stmt->execute(['user_id' => $user_id]);
-            showToast('تم حذف المستخدم بنجاح', APPURL . 'admin_users.php', 'success');
+            setFlash('تم حذف المستخدم بنجاح', 'success');
         }
     } catch (PDOException $e) {
-        showToast('حدث خطأ أثناء معالجة الطلب.', APPURL . 'admin_users.php', 'error');
+        setFlash('حدث خطأ أثناء معالجة الطلب.', 'error');
     }
+    header('Location: ' . APPURL . 'admin_users.php');
+    exit;
 }

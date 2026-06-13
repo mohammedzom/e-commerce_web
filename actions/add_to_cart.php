@@ -1,14 +1,12 @@
 <?php
 require __DIR__ . "/../config/config.php";
 require __DIR__ . "/../includes/middleware/check-login.php";
-require_once __DIR__ . "/../includes/toast.php";
 
 $pervers_page = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : APPURL . 'index.php';
 
 if (isset($_POST['add_to_cart']) && isset($_POST['product_id'])) {
     $product_id = (int) $_POST['product_id'];
     $user_id = $_SESSION['user_id'];
-
 
     if (!$product_id) {
         header('Location: ' . $pervers_page);
@@ -20,7 +18,9 @@ if (isset($_POST['add_to_cart']) && isset($_POST['product_id'])) {
     $product = $product->fetch(PDO::FETCH_OBJ);
 
     if (!$product || $product->stock_quantity <= 0) {
-        showToastBack('المنتج غير متوفر حالياً', 'warning');
+        setFlash('المنتج غير متوفر حالياً', 'warning');
+        header('Location: ' . $pervers_page);
+        exit;
     }
 
     $stmt = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
@@ -38,20 +38,25 @@ if (isset($_POST['add_to_cart']) && isset($_POST['product_id'])) {
     }
 
     if ($cart_item) {
-
         if ($quantity > $product->stock_quantity) {
-            showToastBack('الكمية المطلوبة أكثر من الكمية المتوفرة', 'warning');
+            setFlash('الكمية المطلوبة أكثر من الكمية المتوفرة', 'warning');
+            header('Location: ' . $pervers_page);
+            exit;
         }
 
         $stmt = $conn->prepare("UPDATE cart_items SET quantity = :quantity WHERE user_id = :user_id AND product_id = :product_id");
         $stmt->execute(['quantity' => $quantity, 'user_id' => $user_id, 'product_id' => $product_id]);
 
-        showToast('تم تحديث الكمية في السلة', $pervers_page, 'success');
+        setFlash('تم تحديث الكمية في السلة', 'success');
+        header('Location: ' . $pervers_page);
+        exit;
     } else {
         $stmt = $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)");
         $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id, 'quantity' => $quantity]);
 
-        showToast('تمت الإضافة إلى السلة', $pervers_page, 'success');
+        setFlash('تمت الإضافة إلى السلة', 'success');
+        header('Location: ' . $pervers_page);
+        exit;
     }
 } else {
     header('Location: ' . $pervers_page);

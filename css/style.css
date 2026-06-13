@@ -2527,3 +2527,43 @@ ul {
   color: var(--color-text-muted);
   font-size: var(--font-size-xs);
 }
+
+
+/* ============================================
+   Flash Messages
+   ============================================ */
+.flash-msg {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+  border-right: 4px solid;
+}
+
+.flash-success {
+  background-color: var(--color-success-light);
+  color: #2E7D32;
+  border-color: var(--color-success);
+}
+
+.flash-error {
+  background-color: var(--color-danger-light);
+  color: #C62828;
+  border-color: var(--color-danger);
+}
+
+.flash-warning {
+  background-color: var(--color-warning-light);
+  color: #B8860B;
+  border-color: var(--color-warning);
+}
+
+.flash-info {
+  background-color: var(--color-info-light);
+  color: #1565C0;
+  border-color: var(--color-info);
+}

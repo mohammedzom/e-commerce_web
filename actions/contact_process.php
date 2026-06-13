@@ -1,6 +1,5 @@
 <?php 
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../includes/toast.php';
 
 if(!isset($_POST['send'])) {
     header("Location: " . APPURL . "index.php");
@@ -20,7 +19,11 @@ $stmt->execute([
   'subject' => $subject,
   'message' => $message
 ]);
-showToast('تم إرسال رسالتك بنجاح', APPURL . 'contact.php', 'success');
+setFlash('تم إرسال رسالتك بنجاح', 'success');
+header('Location: ' . APPURL . 'contact.php');
+exit;
 } catch (PDOException $e) {
-    showToast('حدث خطأ يرجى المحاولة مرة أخرى', APPURL . 'contact.php', 'error');
+    setFlash('حدث خطأ يرجى المحاولة مرة أخرى', 'error');
+    header('Location: ' . APPURL . 'contact.php');
+    exit;
 }

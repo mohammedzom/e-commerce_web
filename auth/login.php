@@ -48,6 +48,7 @@ $page_title = "متجرنا — تسجيل الدخول";
 <body>
 
   <div class="auth-wrapper">
+    <?php displayFlash(); ?>
     <div class="auth-card animate-fadeInUp">
       <div class="auth-logo">
         <a href="<?php echo APPURL; ?>index.php" style="color:inherit;">

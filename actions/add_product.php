@@ -82,7 +82,12 @@ try {
         VALUES (:name, :description, :price, :stock_quantity, :category_id, :image_url)
     ")->execute($product);
 
-    header('Location: ' . APPURL . 'admin_products.php?status=' . ($result ? 'added' : 'add_error'));
+    if ($result) {
+        setFlash('تم إضافة المنتج بنجاح', 'success');
+    } else {
+        setFlash('حدث خطأ أثناء إضافة المنتج.', 'error');
+    }
+    header('Location: ' . APPURL . 'admin_products.php');
     exit;
 } catch (Exception $e) {
     redirect_product_form_error('حدث خطأ أثناء إضافة المنتج.');
