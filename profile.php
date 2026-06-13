@@ -10,18 +10,18 @@ $user->execute(['user_id' => $_SESSION['user_id']]);
 $user = $user->fetch(PDO::FETCH_OBJ);
 
 $months_list_ar = array(
-    "January" => "يناير",
-    "February" => "فبراير",
-    "March" => "مارس",
-    "April" => "أبريل",
-    "May" => "مايو",
-    "June" => "يونيو",
-    "July" => "يوليو",
-    "August" => "أغسطس",
-    "September" => "سبتمبر",
-    "October" => "أكتوبر",
-    "November" => "نوفمبر",
-    "December" => "ديسمبر"
+    "01" => "يناير",
+    "02" => "فبراير",
+    "03" => "مارس",
+    "04" => "أبريل",
+    "05" => "مايو",
+    "06" => "يونيو",
+    "07" => "يوليو",
+    "08" => "أغسطس",
+    "09" => "سبتمبر",
+    "10" => "أكتوبر",
+    "11" => "نوفمبر",
+    "12" => "ديسمبر"
 );
 
 $orders_per_page = 5;
@@ -81,7 +81,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_OBJ);
                         <div class="text-center mb-4">
                             <div class="profile-avatar mx-auto mb-3"><?php echo $user->full_name[0] ?></div>
                             <h5 style="font-weight:700;margin-bottom:2px;"><?php echo $user->full_name ?></h5>
-                            <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عميل منذ <?php echo $months_list_ar[date('M', strtotime($user->created_at))] . ' ' . date('Y', strtotime($user->created_at))  ?></p>
+                            <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">عميل منذ <?= $months_list_ar[date('m', strtotime($user->created_at))] . ' ' . date('Y', strtotime($user->created_at))  ?></p>
                         </div>
 
                         <ul class="nav flex-column gap-1" id="profileTabs">

@@ -75,14 +75,20 @@ $unread_count = (int) $conn->query("SELECT COUNT(*) FROM contacts WHERE is_read 
 
             <?php foreach ($messages as $message): ?>
               <?php
+              $name = htmlspecialchars($message->name);
+              $email = htmlspecialchars($message->email);
+              $subject = htmlspecialchars($message->subject ?: 'بدون موضوع');
+              $date = $message->submitted_at;
               $is_unread = (int)$message->is_read === 0;
+              $message_text = htmlspecialchars($message->message);
+              $message_show = mb_strlen($message_text) > 50 ? mb_substr($message_text, 0, 50) . '...' : $message_text;
               ?>
               <tr class="<?= $is_unread ? 'row-unread' : '' ?>">
-                <td data-label="المرسل"><strong><?= htmlspecialchars($message->name) ?></strong></td>
-                <td data-label="البريد الإلكتروني"><?= htmlspecialchars($message->email) ?></td>
-                <td data-label="الموضوع"><strong><?= htmlspecialchars($message->subject ?: 'بدون موضوع') ?></strong></td>
-                <td data-label="الرسالة"><span class="text-muted-custom"><?= nl2br(htmlspecialchars($message->message)) ?></span></td>
-                <td data-label="التاريخ"><?= htmlspecialchars($message->submitted_at) ?></td>
+                <td data-label="المرسل"><strong><?= $name ?></strong></td>
+                <td data-label="البريد الإلكتروني"><?= $email ?></td>
+                <td data-label="الموضوع"><strong><?= $subject ?></strong></td>
+                <td data-label="الرسالة"><span class="text-muted-custom"><?= nl2br($message_show) ?></span></td>
+                <td data-label="التاريخ"><?= $date ?></td>
                 <td data-label="الحالة">
                   <?php if ($is_unread): ?>
                     <span class="status-badge status-pending"><i class="bi bi-envelope-fill"></i> جديدة</span>
