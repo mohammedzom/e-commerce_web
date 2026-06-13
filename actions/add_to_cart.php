@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . "/../config/config.php";
 require __DIR__ . "/../includes/middleware/check-login.php";
+require_once __DIR__ . "/../includes/toast.php";
 
 $pervers_page = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : APPURL . 'index.php';
 
@@ -19,8 +20,7 @@ if (isset($_POST['add_to_cart']) && isset($_POST['product_id'])) {
     $product = $product->fetch(PDO::FETCH_OBJ);
 
     if (!$product || $product->stock_quantity <= 0) {
-        echo "<script>alert('المنتج غير متوفر حالياً'); window.history.back();</script>";
-        exit;
+        showToastBack('المنتج غير متوفر حالياً', 'warning');
     }
 
     $stmt = $conn->prepare("SELECT * FROM cart_items WHERE user_id = :user_id AND product_id = :product_id");
@@ -40,21 +40,18 @@ if (isset($_POST['add_to_cart']) && isset($_POST['product_id'])) {
     if ($cart_item) {
 
         if ($quantity > $product->stock_quantity) {
-            echo "<script>alert('الكمية المطلوبة أكثر من الكمية المتوفرة'); window.history.back();</script>";
-            exit;
+            showToastBack('الكمية المطلوبة أكثر من الكمية المتوفرة', 'warning');
         }
 
         $stmt = $conn->prepare("UPDATE cart_items SET quantity = :quantity WHERE user_id = :user_id AND product_id = :product_id");
         $stmt->execute(['quantity' => $quantity, 'user_id' => $user_id, 'product_id' => $product_id]);
 
-        echo "<script>alert('تم تحديث الكمية في السلة'); window.location.href = '" . $pervers_page . "';</script>";
-        exit;
+        showToast('تم تحديث الكمية في السلة', $pervers_page, 'success');
     } else {
         $stmt = $conn->prepare("INSERT INTO cart_items (user_id, product_id, quantity) VALUES (:user_id, :product_id, :quantity)");
         $stmt->execute(['user_id' => $user_id, 'product_id' => $product_id, 'quantity' => $quantity]);
 
-        echo "<script>alert('تمت الإضافة إلى السلة'); window.location.href = '" . $pervers_page . "';</script>";
-        exit;
+        showToast('تمت الإضافة إلى السلة', $pervers_page, 'success');
     }
 } else {
     header('Location: ' . $pervers_page);

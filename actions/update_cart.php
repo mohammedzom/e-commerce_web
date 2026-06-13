@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . "/../config/config.php";
 require __DIR__ . "/../includes/middleware/check-login.php";
+require_once __DIR__ . "/../includes/toast.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cart_id = isset($_POST['cart_id']) ? $_POST['cart_id'] : $_POST['cart_item_id'];
@@ -15,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'cart_id' => $cart_id,
             'user_id' => $user_id
         ]);
-        echo "<script>alert('تم تحديث الكمية'); window.location.href = '" . APPURL . "cart.php';</script>";
+        showToast('تم تحديث الكمية', APPURL . 'cart.php', 'success');
     } else {
         // If quantity is 0, maybe remove it?
         $sql = "DELETE FROM cart_items WHERE cart_id = :cart_id AND user_id = :user_id";

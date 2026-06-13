@@ -1,6 +1,7 @@
 <?php
 require_once '../config/config.php';
 require_once '../includes/middleware/check-admin.php';
+require_once __DIR__ . '/../includes/toast.php';
 
 if (isset($_POST['order_id'], $_POST['status'])) {
     $order_id = (int) $_POST['order_id'];
@@ -12,7 +13,8 @@ if (isset($_POST['order_id'], $_POST['status'])) {
             $stmt = $conn->prepare("UPDATE orders SET status = :status WHERE order_id = :order_id");
             $stmt->execute(['status' => $status, 'order_id' => $order_id]);
         } catch (PDOException $e) {
-            echo "<script>alert('حدث خطأ أثناء تحديث حالة الطلب');</script>";
+            $page = isset($_POST['page']) ? '?page=' . (int) $_POST['page'] : '';
+            showToast('حدث خطأ أثناء تحديث حالة الطلب', APPURL . 'admin_orders.php' . $page, 'error');
         }
     }
 }

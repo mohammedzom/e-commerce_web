@@ -1,6 +1,7 @@
 <?php
 require "../config/config.php";
 require "../includes/middleware/check-login.php";
+require_once __DIR__ . "/../includes/toast.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
@@ -59,12 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->prepare("DELETE FROM cart_items WHERE user_id = :user_id")->execute(['user_id' => $user_id]);
 
         $conn->commit();
-        echo "<script>alert('تم تأكيد الطلب بنجاح!'); window.location.href = '" . APPURL . "order_history.php';</script>";
-        exit;
+        showToast('تم تأكيد الطلب بنجاح!', APPURL . 'order_history.php', 'success');
     } catch (PDOException $e) {
         $conn->rollBack();
-        echo "<script>alert('حدث خطأ أثناء معالجة الطلب'); window.location.href = '" . APPURL . "cart.php';</script>";
-        exit;
+        showToast('حدث خطأ أثناء معالجة الطلب', APPURL . 'cart.php', 'error');
     }
 } else {
     header('Location: cart.php');
