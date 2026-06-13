@@ -62,6 +62,8 @@ $start_page = max(1, $end_page - $max_visible + 1);
         <i class="bi bi-plus-lg me-2"></i>إضافة منتج
       </a>
     </div>
+    <?= displayFlash() ?>
+
 
 
     <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">

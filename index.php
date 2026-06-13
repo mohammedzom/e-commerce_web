@@ -30,6 +30,7 @@ foreach ($categories as $category) {
 
   <section class="hero-section" id="hero">
     <div class="container">
+      <?= displayFlash() ?>
       <div class="row align-items-center g-5">
         <div class="col-lg-6">
           <div class="hero-content animate-fadeInUp">

@@ -24,6 +24,7 @@ include 'includes/header.php';
 
   <section class="section-padding">
     <div class="container">
+      <?= displayFlash() ?>
       <div class="row g-5">
         <!-- Contact Form -->
         <div class="col-lg-7">

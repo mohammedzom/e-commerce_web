@@ -49,6 +49,7 @@ foreach ($cart_items as $cart_item) {
   <!-- CART CONTENT -->
   <section class="section-padding">
     <div class="container">
+      <?= displayFlash() ?>
       <div class="row g-4">
         <!-- Cart Table -->
         <div class="col-lg-8">

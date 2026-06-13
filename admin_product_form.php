@@ -50,6 +50,8 @@ include 'includes/header.php';
         <i class="bi bi-arrow-right me-2"></i>رجوع
       </a>
     </div>
+    <?= displayFlash() ?>
+
 
     <?php if ($form_error): ?>
       <div class="alert alert-danger" role="alert">

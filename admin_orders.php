@@ -55,6 +55,8 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
         <h1 style="display:inline-block;vertical-align:middle;margin-right:var(--space-sm);">إدارة الطلبات</h1>
       </div>
     </div>
+    <?= displayFlash() ?>
+
 
 
     <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">

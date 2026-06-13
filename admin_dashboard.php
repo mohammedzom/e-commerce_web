@@ -73,6 +73,8 @@ $topProducts = $stmt->fetchAll(PDO::FETCH_OBJ);
         <span style="font-size:var(--font-size-sm);font-weight:600;"><?= $_SESSION['full_name'] ?></span>
       </div>
     </div>
+    <?= displayFlash() ?>
+
 
     <div class="row g-4 mb-4">
       <div class="col-sm-6 col-xl-3">

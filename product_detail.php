@@ -65,6 +65,7 @@ $count_same_prodects = count($same_prodects);
 
     <section class="section-padding">
         <div class="container">
+      <?= displayFlash() ?>
             <div class="row g-5">
                 <div class="col-lg-6">
                     <div class="product-gallery animate-fadeInUp shadow-sm bg-white" style="border: 1px solid var(--color-border-light); padding: 2rem;">

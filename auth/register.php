@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </a>
         <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">أنشئ حسابك الجديد وابدأ التسوق</p>
       </div>
+      <?= displayFlash() ?>
 
       <form id="registerForm" method="POST" action="register.php">
         <div class="row g-3">

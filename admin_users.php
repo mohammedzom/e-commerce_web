@@ -30,6 +30,8 @@ $users = $users->fetchAll(PDO::FETCH_OBJ);
         <h1 style="display:inline-block;vertical-align:middle;margin-right:var(--space-sm);">إدارة المستخدمين</h1>
       </div>
     </div>
+    <?= displayFlash() ?>
+
 
 
     <!-- Desktop Table -->

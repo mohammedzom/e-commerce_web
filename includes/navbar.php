@@ -6,9 +6,9 @@ $isContact = '';
 
 if ($current_url == 'index.php') {
     $isHome = 'active';
-}elseif ($current_url == 'products.php') {
+} elseif ($current_url == 'products.php') {
     $isProduct = 'active';
-}elseif ($current_url == 'contact.php') {
+} elseif ($current_url == 'contact.php') {
     $isContact = 'active';
 }
 
@@ -80,4 +80,3 @@ if ($current_url == 'index.php') {
         </div>
     </div>
 </nav>
-<?php displayFlash(); ?>

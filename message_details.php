@@ -74,6 +74,8 @@ $time = date('H:i', strtotime($message->submitted_at));
                 <i class="bi bi-arrow-right me-1"></i>العودة للرسائل
             </a>
         </div>
+    <?= displayFlash() ?>
+
 
         <div class="row g-4">
             <div class="col-lg-4">

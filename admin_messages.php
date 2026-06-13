@@ -53,6 +53,8 @@ $unread_count = (int) $conn->query("SELECT COUNT(*) FROM contacts WHERE is_read 
         </div>
       </div>
     </div>
+    <?= displayFlash() ?>
+
 
     <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">
       <div class="table-responsive">

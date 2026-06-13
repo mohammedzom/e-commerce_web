@@ -29,9 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role']      = $fetch->role;
 
         if ($fetch->role == 'admin') {
-            header('Location: ' . APPURL . 'admin_dashboard.php');
+          header('Location: ' . APPURL . 'admin_dashboard.php');
         } else {
-            header('Location: ' . APPURL);
+          header('Location: ' . APPURL);
         }
         exit;
       } else {
@@ -48,7 +48,6 @@ $page_title = "متجرنا — تسجيل الدخول";
 <body>
 
   <div class="auth-wrapper">
-    <?php displayFlash(); ?>
     <div class="auth-card animate-fadeInUp">
       <div class="auth-logo">
         <a href="<?php echo APPURL; ?>index.php" style="color:inherit;">
@@ -56,6 +55,7 @@ $page_title = "متجرنا — تسجيل الدخول";
         </a>
         <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">مرحباً بعودتك! سجّل دخولك للمتابعة</p>
       </div>
+      <?= displayFlash() ?>
 
       <form id="loginForm" method="POST" action="login.php">
         <div class="mb-3">

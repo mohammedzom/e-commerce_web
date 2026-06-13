@@ -95,6 +95,7 @@ foreach ($categories as $category) {
   <!-- MAIN CONTENT -->
   <section class="section-padding">
     <div class="container">
+      <?= displayFlash() ?>
       <div class="row g-4">
 
         <div class="col-lg-3">

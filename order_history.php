@@ -57,6 +57,7 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
 
   <section class="section-padding">
     <div class="container">
+      <?= displayFlash() ?>
       <div class="card-custom" style="padding:var(--space-xl);border-radius:var(--radius-lg);">
         <div class="table-responsive">
           <table class="table table-custom mb-0">

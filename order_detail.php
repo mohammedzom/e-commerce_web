@@ -61,6 +61,8 @@ $order_status = $status_map[$order->status] ?? [
         <i class="bi bi-arrow-right me-1"></i>العودة للطلبات
       </a>
     </div>
+    <?= displayFlash() ?>
+
 
     <!-- Order Info -->
     <div class="row g-4 mb-4">
