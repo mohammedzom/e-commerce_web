@@ -51,11 +51,12 @@ $users = $users->fetchAll(PDO::FETCH_OBJ);
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($users as $user) {
+            <?php
+            foreach ($users as $index => $user) {
               $first_letter = mb_substr(trim($user->full_name), 0, 1, 'UTF-8');
             ?>
               <tr>
-                <td data-label="#"> <?= htmlspecialchars($user->user_id) ?></td>
+                <td data-label="#"> <?= $index + 1 ?></td>
                 <td data-label="المستخدم">
                   <div class="d-flex align-items-center gap-2">
                     <div class="profile-avatar" style="width:36px;height:36px;font-size:var(--font-size-xs);"><?= htmlspecialchars($first_letter) ?></div>
