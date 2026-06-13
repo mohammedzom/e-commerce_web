@@ -2,11 +2,11 @@
 $page_description = "إنشاء حساب جديد في متجرنا — ابدأ رحلة تسوقك الآن.";
 $page_title = "إنشاء حساب";
 $error = "";
-include __DIR__ . "/../includes/header.php";
 require __DIR__ . "/../config/config.php";
+include __DIR__ . "/../includes/header.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (empty($_POST['first_name']) || empty($_POST['last_name']) || empty($_POST['email']) || empty($_POST['phone']) || empty($_POST['password']) || empty($_POST['confirm_password'])) {
+  if (empty($_POST['first_name']) || empty($_POST['last_name']) || empty($_POST['email']) || empty($_POST['phone']) || empty($_POST['address']) || empty($_POST['password']) || empty($_POST['confirm_password'])) {
     $error = "الرجاء ملء جميع الحقول";
   } else {
     $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
@@ -91,6 +91,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <i class="bi bi-phone"></i>
             </span>
             <input type="tel" class="form-control form-control-custom" id="regPhone" placeholder="05XXXXXXXX" required style="border-radius:var(--radius-md) 0 0 var(--radius-md);" name="phone">
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <label class="form-label-custom" for="regAddress">العنوان</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border:1.5px solid var(--color-border);border-left:0;border-radius:0 var(--radius-md) var(--radius-md) 0;background:var(--color-bg-alt);color:var(--color-text-muted);">
+              <i class="bi bi-geo-alt"></i>
+            </span>
+            <input type="text" class="form-control form-control-custom" id="regAddress" placeholder="مثال: الرياض، حي النسيم، شارع الملك فهد" required style="border-radius:var(--radius-md) 0 0 var(--radius-md);" name="address">
           </div>
         </div>
 

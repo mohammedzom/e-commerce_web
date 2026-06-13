@@ -1,0 +1,56 @@
+services:
+  app:
+    build: .
+    container_name: ecommerce-app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: ecommerce_db
+      DB_PORT: "3306"
+      APPURL: "http://localhost:8080/"
+      APP_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11
+    container_name: ecommerce-db
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: ecommerce_db
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./ecommerce_db.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./seed_data.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: ecommerce-pma
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db_data:

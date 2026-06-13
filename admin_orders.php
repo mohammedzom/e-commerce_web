@@ -84,22 +84,21 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
                 'icon' => 'bi-question-circle-fill',
                 'label' => $order->status
               ];
-              $first_letter = mb_substr(trim($order->full_name), 0, 1, 'UTF-8');
               ?>
               <tr>
-                <td data-label="رقم الطلب"><strong>#ORD-<?= htmlspecialchars($order->order_id) ?></strong></td>
+                <td data-label="رقم الطلب"><strong>#ORD-<?= $order->order_id ?></strong></td>
                 <td data-label="العميل">
                   <div class="d-flex align-items-center gap-2">
-                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);"><?= htmlspecialchars($first_letter) ?></div>
+                    <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);"><?= mb_substr(trim($order->full_name), 0, 1, 'UTF-8') ?></div>
                     <span><?= htmlspecialchars($order->full_name) ?></span>
                   </div>
                 </td>
-                <td data-label="المنتجات"><?= htmlspecialchars($order->total_items) ?> منتج</td>
-                <td data-label="الإجمالي"><strong><?= htmlspecialchars($order->total_amount) ?> ش</strong></td>
-                <td data-label="التاريخ"><?= htmlspecialchars(date('Y-m-d H:i', strtotime($order->order_date))) ?></td>
+                <td data-label="المنتجات"><?= $order->total_items ?> منتج</td>
+                <td data-label="الإجمالي"><strong><?= $order->total_amount ?> ش</strong></td>
+                <td data-label="التاريخ"><?= date('Y-m-d H:i', strtotime($order->order_date)) ?></td>
                 <td data-label="الحالة">
-                  <span class="status-badge <?= htmlspecialchars($order_status['class']) ?>">
-                    <i class="bi <?= htmlspecialchars($order_status['icon']) ?>"></i> <?= htmlspecialchars($order_status['label']) ?>
+                  <span class="status-badge <?= $order_status['class'] ?>">
+                    <i class="bi <?= $order_status['icon'] ?>"></i> <?= $order_status['label'] ?>
                   </span>
                 </td>
                 <td data-label="الإجراءات">
@@ -109,8 +108,8 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
                       <input type="hidden" name="page" value="<?= $current_page ?>">
                       <select name="status" class="form-select form-select-custom" style="width:auto;min-width:130px;font-size:var(--font-size-xs);padding:0.3rem 0.6rem;" onchange="this.form.submit()">
                         <?php foreach ($status_map as $status_key => $status): ?>
-                          <option value="<?= htmlspecialchars($status_key) ?>" <?= $order->status === $status_key ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($status['label']) ?>
+                          <option value="<?= $status_key ?>" <?= $order->status === $status_key ? 'selected' : '' ?>>
+                            <?= $status['label'] ?>
                           </option>
                         <?php endforeach; ?>
                       </select>

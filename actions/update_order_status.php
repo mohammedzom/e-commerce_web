@@ -2,7 +2,7 @@
 require_once '../config/config.php';
 require_once '../includes/middleware/check-admin.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['status'])) {
+if (isset($_POST['order_id'], $_POST['status'])) {
     $order_id = (int) $_POST['order_id'];
     $status = $_POST['status'];
     $allowed = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['s
             $stmt = $conn->prepare("UPDATE orders SET status = :status WHERE order_id = :order_id");
             $stmt->execute(['status' => $status, 'order_id' => $order_id]);
         } catch (PDOException $e) {
-            // Silently fail
+            echo "<script>alert('حدث خطأ أثناء تحديث حالة الطلب');</script>";
         }
     }
 }
