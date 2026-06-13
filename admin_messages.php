@@ -5,7 +5,6 @@ require_once 'config/config.php';
 require_once 'includes/middleware/check-admin.php';
 include 'includes/header.php';
 
-// Handle Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
   $msg_id = (int)($_POST['message_id'] ?? 0);
@@ -13,6 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($msg_id > 0) {
     if ($action === 'mark_read') {
       $stmt = $conn->prepare("UPDATE contacts SET is_read = 1 WHERE message_id = ?");
+      $stmt->execute([$msg_id]);
+    } elseif ($action === 'mark_unread') {
+      $stmt = $conn->prepare("UPDATE contacts SET is_read = 0 WHERE message_id = ?");
       $stmt->execute([$msg_id]);
     } elseif ($action === 'delete') {
       $stmt = $conn->prepare("DELETE FROM contacts WHERE message_id = ?");
@@ -44,7 +46,7 @@ $unread_count = (int) $conn->query("SELECT COUNT(*) FROM contacts WHERE is_read 
             <?php if ($unread_count > 0): ?>
               <span class="status-badge status-pending ms-2" style="font-size:0.7rem;vertical-align:middle;">
                 <i class="bi bi-circle-fill" style="font-size:0.45rem;"></i>
-                <span><?php echo $unread_count; ?></span> جديدة
+                <span><?= $unread_count ?></span> جديدة
               </span>
             <?php endif; ?>
           </h1>
@@ -98,12 +100,23 @@ $unread_count = (int) $conn->query("SELECT COUNT(*) FROM contacts WHERE is_read 
                 </td>
                 <td data-label="الإجراءات">
                   <div class="d-flex gap-1 justify-content-end">
+                    <a class="btn btn-outline-custom btn-sm-custom" href="message_details.php?id=<?= $message->message_id ?>" title="عرض التفاصيل">
+                      <i class="bi bi-eye"></i>
+                    </a>
                     <?php if ($is_unread): ?>
                       <form method="POST" style="margin:0;">
                         <input type="hidden" name="action" value="mark_read">
                         <input type="hidden" name="message_id" value="<?= $message->message_id ?>">
-                        <button class="btn btn-sm-custom btn-make-read" type="submit" title="تحديد كمقروء" style="background:var(--color-primary-light);color:var(--color-primary);border:none;">
+                        <button class="btn btn-sm-custom btn-make-read" type="submit" title="تحديد كمقروء">
                           <i class="bi bi-check2"></i>
+                        </button>
+                      </form>
+                    <?php else: ?>
+                      <form method="POST" style="margin:0;">
+                        <input type="hidden" name="action" value="mark_unread">
+                        <input type="hidden" name="message_id" value="<?= $message->message_id ?>">
+                        <button class="btn btn-sm-custom btn-make-unread" type="submit" title="تحديد كغير مقروء">
+                          <i class="bi bi-envelope-fill"></i>
                         </button>
                       </form>
                     <?php endif; ?>

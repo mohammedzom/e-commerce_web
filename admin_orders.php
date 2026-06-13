@@ -79,6 +79,11 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
             <?php endif; ?>
             <?php foreach ($orders as $order): ?>
               <?php
+              $username = htmlspecialchars($order->full_name);
+              $order_id = $order->order_id;
+              $product_count = $order->total_items;
+              $total_amount = $order->total_amount;
+              $order_date = date('Y-m-d H:i', strtotime($order->order_date));
               $order_status = $status_map[$order->status] ?? [
                 'class' => 'status-pending',
                 'icon' => 'bi-question-circle-fill',
@@ -86,16 +91,16 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
               ];
               ?>
               <tr>
-                <td data-label="رقم الطلب"><strong>#ORD-<?= $order->order_id ?></strong></td>
+                <td data-label="رقم الطلب"><strong>#ORD-<?= $order_id ?></strong></td>
                 <td data-label="العميل">
                   <div class="d-flex align-items-center gap-2">
                     <div class="profile-avatar" style="width:32px;height:32px;font-size:var(--font-size-xs);"><?= mb_substr(trim($order->full_name), 0, 1, 'UTF-8') ?></div>
-                    <span><?= htmlspecialchars($order->full_name) ?></span>
+                    <span><?= $username ?></span>
                   </div>
                 </td>
-                <td data-label="المنتجات"><?= $order->total_items ?> منتج</td>
-                <td data-label="الإجمالي"><strong><?= $order->total_amount ?> ش</strong></td>
-                <td data-label="التاريخ"><?= date('Y-m-d H:i', strtotime($order->order_date)) ?></td>
+                <td data-label="المنتجات"><?= $product_count ?> منتج</td>
+                <td data-label="الإجمالي"><strong><?= $total_amount ?> ش</strong></td>
+                <td data-label="التاريخ"><?= $order_date ?></td>
                 <td data-label="الحالة">
                   <span class="status-badge <?= $order_status['class'] ?>">
                     <i class="bi <?= $order_status['icon'] ?>"></i> <?= $order_status['label'] ?>
@@ -108,7 +113,7 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
                       <input type="hidden" name="page" value="<?= $current_page ?>">
                       <select name="status" class="form-select form-select-custom" style="width:auto;min-width:130px;font-size:var(--font-size-xs);padding:0.3rem 0.6rem;" onchange="this.form.submit()">
                         <?php foreach ($status_map as $status_key => $status): ?>
-                          <option value="<?= $status_key ?>" <?= $order->status === $status_key ? 'selected' : '' ?>>
+                          <option value="<?= $status_key ?>" <?= $order->status == $status_key ? 'selected' : '' ?>>
                             <?= $status['label'] ?>
                           </option>
                         <?php endforeach; ?>
@@ -127,7 +132,7 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
     <!-- Pagination -->
     <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
       <p class="text-muted-custom mb-0" style="font-size:var(--font-size-sm);">
-        عرض <?php echo $start_order; ?> إلى <?php echo $end_order; ?> من <?php echo $total_orders; ?> طلب
+        عرض <?= $start_order ?> إلى <?= $end_order ?> من <?= $total_orders ?> طلب
       </p>
 
       <?php if ($total_pages > 1): ?>
@@ -143,13 +148,13 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
           $start_page = max(1, $end_page - $max_visible + 1);
           ?>
           <ul class="pagination mb-0" style="gap:4px;">
-            <li class="page-item <?php echo ($current_page <= 1) ? 'disabled' : ''; ?>">
-              <a class="page-link border-0 rounded-3" href="<?php echo ($current_page > 1) ? $base_url . 'page=' . ($current_page - 1) : '#'; ?>" style="color:var(--color-text-muted);"><i class="bi bi-chevron-right"></i></a>
+            <li class="page-item <?= ($current_page <= 1) ? 'disabled' : '' ?>">
+              <a class="page-link border-0 rounded-3" href="<?= ($current_page > 1) ? $base_url . 'page=' . ($current_page - 1) : '#' ?>" style="color:var(--color-text-muted);"><i class="bi bi-chevron-right"></i></a>
             </li>
 
             <?php if ($start_page > 1): ?>
               <li class="page-item">
-                <a class="page-link border-0 rounded-3" href="<?php echo $base_url; ?>page=1" style="color:var(--color-text-secondary);">1</a>
+                <a class="page-link border-0 rounded-3" href="<?= $base_url ?>page=1" style="color:var(--color-text-secondary);">1</a>
               </li>
               <?php if ($start_page > 2): ?>
                 <li class="page-item disabled">
@@ -159,8 +164,8 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
             <?php endif; ?>
 
             <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-              <li class="page-item <?php echo ($i === $current_page) ? 'active' : ''; ?>">
-                <a class="page-link border-0 rounded-3" href="<?php echo $base_url; ?>page=<?php echo $i; ?>" style="<?php echo ($i === $current_page) ? 'background:var(--color-primary);border-color:var(--color-primary);' : 'color:var(--color-text-secondary);'; ?>"><?php echo $i; ?></a>
+              <li class="page-item <?= ($i === $current_page) ? 'active' : '' ?>">
+                <a class="page-link border-0 rounded-3" href="<?= $base_url ?>page=<?= $i ?>" style="<?= ($i === $current_page) ? 'background:var(--color-primary);border-color:var(--color-primary);' : 'color:var(--color-text-secondary);' ?>"><?= $i ?></a>
               </li>
             <?php endfor; ?>
 
@@ -171,12 +176,12 @@ $orders = $orders->fetchAll(PDO::FETCH_OBJ);
                 </li>
               <?php endif; ?>
               <li class="page-item">
-                <a class="page-link border-0 rounded-3" href="<?php echo $base_url; ?>page=<?php echo $total_pages; ?>" style="color:var(--color-text-secondary);"><?php echo $total_pages; ?></a>
+                <a class="page-link border-0 rounded-3" href="<?= $base_url ?>page=<?= $total_pages ?>" style="color:var(--color-text-secondary);"><?= $total_pages ?></a>
               </li>
             <?php endif; ?>
 
-            <li class="page-item <?php echo ($current_page >= $total_pages) ? 'disabled' : ''; ?>">
-              <a class="page-link border-0 rounded-3" href="<?php echo ($current_page < $total_pages) ? $base_url . 'page=' . ($current_page + 1) : '#'; ?>" style="color:var(--color-text-secondary);"><i class="bi bi-chevron-left"></i></a>
+            <li class="page-item <?= ($current_page >= $total_pages) ? 'disabled' : '' ?>">
+              <a class="page-link border-0 rounded-3" href="<?= ($current_page < $total_pages) ? $base_url . 'page=' . ($current_page + 1) : '#' ?>" style="color:var(--color-text-secondary);"><i class="bi bi-chevron-left"></i></a>
             </li>
           </ul>
         </nav>

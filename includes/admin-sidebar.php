@@ -45,7 +45,7 @@ $is_active = function ($page) use ($cur_page) {
             </li>
             
             <li class="nav-item">
-                <a href="<?= APPURL ?>admin_messages.php" class="nav-link <?= $is_active('admin_messages.php'); ?>">
+                <a href="<?= APPURL ?>admin_messages.php" class="nav-link <?= $is_active('admin_messages.php') ?: $is_active('message_details.php'); ?>">
                     <i class="bi bi-chat-dots"></i> الرسائل
                 </a>
             </li>
