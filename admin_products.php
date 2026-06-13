@@ -5,7 +5,7 @@ require_once 'config/config.php';
 require_once 'includes/middleware/check-admin.php';
 include 'includes/header.php';
 
-$products_per_page = 15;
+$products_per_page = 10;
 $total_products = (int) $conn->query("SELECT COUNT(*) FROM products")->fetchColumn();
 $total_pages = max(1, (int) ceil($total_products / $products_per_page));
 $current_page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
@@ -36,17 +36,6 @@ $products_stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $products_stmt->execute();
 $products = $products_stmt->fetchAll(PDO::FETCH_OBJ);
 
-$status_messages = [
-  'added' => ['class' => 'success', 'text' => 'تم إضافة المنتج بنجاح.'],
-  'updated' => ['class' => 'success', 'text' => 'تم تعديل المنتج بنجاح.'],
-  'deleted' => ['class' => 'success', 'text' => 'تم حذف المنتج بنجاح.'],
-  'add_error' => ['class' => 'danger', 'text' => 'فشل إضافة المنتج.'],
-  'update_error' => ['class' => 'danger', 'text' => 'فشل تعديل المنتج.'],
-  'delete_error' => ['class' => 'danger', 'text' => 'فشل حذف المنتج.'],
-  'not_found' => ['class' => 'warning', 'text' => 'المنتج غير موجود.'],
-];
-$status = $_GET['status'] ?? '';
-
 $page_get = $_GET;
 unset($page_get['page']);
 $base_q = http_build_query($page_get);
@@ -74,12 +63,6 @@ $start_page = max(1, $end_page - $max_visible + 1);
       </a>
     </div>
 
-    <?php if (isset($status_messages[$status])): ?>
-      <div class="alert alert-<?php echo $status_messages[$status]['class']; ?>" role="alert">
-        <?php echo $status_messages[$status]['text']; ?>
-      </div>
-    <?php endif; ?>
-
 
     <div class="card-custom" style="border-radius:var(--radius-lg);overflow:hidden;">
       <div class="table-responsive">
@@ -96,15 +79,16 @@ $start_page = max(1, $end_page - $max_visible + 1);
             </tr>
           </thead>
           <tbody>
-            <?php if (count($products) === 0): ?>
+            <?php if (count($products) == 0): ?>
               <tr>
                 <td colspan="7" class="text-center py-4">لا توجد منتجات.</td>
               </tr>
             <?php endif; ?>
             <?php
-            foreach ($products as $product) : ?>
+            $i = ($current_page - 1) * $products_per_page + 1;
+            foreach ($products as $product): ?>
               <tr>
-                <td data-label="#"> <?= $product->product_id ?></td>
+                <td data-label="#"> <?= $i++ ?></td>
                 <td data-label="الصورة">
                   <div style="width:44px;height:44px;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-alt);">
                     <img src="<?= htmlspecialchars($product->image_url) ?>" alt="<?= htmlspecialchars($product->name) ?>" style="width:100%;height:100%;object-fit:cover;">

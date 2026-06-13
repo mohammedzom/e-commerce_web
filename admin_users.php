@@ -4,7 +4,7 @@ $page_title = 'متجرنا — إدارة المستخدمين';
 require_once 'config/config.php';
 require_once 'includes/middleware/check-admin.php';
 include 'includes/header.php';
-$user_id = $_SESSION['user_id'] ?? 0;
+$user_id = $_SESSION['user_id'];
 $users = $conn->prepare("
   SELECT u.*, COUNT(o.order_id) as total_orders 
   FROM users u 
